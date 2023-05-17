@@ -72,6 +72,7 @@ for f in allfiles:
     dst_path = os.path.join(destination, f)
     shutil.move(src_path, dst_path)
 
+
 print("moved val files")
 
 ## Download nnotations files
@@ -86,5 +87,7 @@ with zipfile.ZipFile(ann_instance,"r") as zip:
     zip.extractall()
 
 
-shutil.move("annotations", "COCOdataset/")
+shutil.move("annotations_trainval2017/annotations", "COCOdataset/")
 os.remove(ann_instance)
+os.remove("annotations_trainval2017")
+

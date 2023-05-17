@@ -73,7 +73,7 @@ class InvertedResidual(nn.Module):
 
 class MobileNetV2(nn.Module):
 
-  def __init__(self, num_classes=2, width_mult=1.0, round_nearest=8):    # add norm layer? block?
+  def __init__(self, num_classes=2, width_mult=0.35, round_nearest=8):    # add norm layer? block?
 
     super(MobileNetV2,self).__init__()
     

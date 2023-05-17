@@ -2,7 +2,7 @@ import torch
 import tqdm
 import torch.nn as nn
 
-from src.dataset import get_data_loader
+from dataset import get_data_loader
 
 def get_optimizer(net, lr,wd,momentum):
   optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
@@ -19,6 +19,9 @@ def train(net, data_loader, optimizer, loss_function, device):
   cumulative_accuracy=0
   net.train()
 
+  # Mixed precision
+  scaler = torch.cuda.amp.GradScaler()
+
   with tqdm.tqdm(total=len(data_loader)) as pbar:
 
     for batch_idx, (inputs, targets) in enumerate(data_loader):
@@ -26,11 +29,19 @@ def train(net, data_loader, optimizer, loss_function, device):
       # Load data into GPU
       inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
       
-      outputs = net(inputs) # Forward pass
-      loss = loss_function(outputs, targets) # Apply the loss
-      loss.backward() # Backward pass
-      optimizer.step()  # update parameters
       optimizer.zero_grad() # reset the optimizer
+
+      with torch.cuda.amp.autocast():
+        outputs = net(inputs) # Forward pass
+
+      loss = loss_function(outputs, targets) # Apply the loss
+      scaler.scale(loss).backward()
+      scaler.step(optimizer)
+      scaler.update()
+      
+      #loss.backward() # Backward pass
+      #optimizer.step()  # update parameters
+      
 
       samples += inputs.shape[0]
       cumulative_loss += loss.item()
@@ -66,7 +77,9 @@ def test(net, data_loader, loss_function, device='cuda:0'):
 
 def trainer(
     # lets define the basic hyperparameters
-    batch_size=128,
+    train_loader,
+    val_loader,
+    test_loader,
     learning_rate=0.01,
     weight_decay=0.000001,
     momentum=0.9,
@@ -75,15 +88,9 @@ def trainer(
     device="cuda:0"):
   
   
-  #now we load the data in three splits train, test and validation 
-  train_loader, val_loader, test_loader = get_data_loader(batch_size)
-  # Moving the resnet to gpu device if it is available
-  
-  #net = model.to(device)
-  net=model().to(device)
-  
+
   # defining the optimizer
-  optimizer = get_optimizer(net, learning_rate, weight_decay, momentum)
+  optimizer = get_optimizer(model, learning_rate, weight_decay, momentum)
   # defining the loss function
   loss_function = get_loss_function()
   # finaly training the model 
@@ -97,8 +104,8 @@ def trainer(
 
   for e in range(epochs):
     print('training epoch number {:.2f} of total epochs of {:.2f}'.format(e,epochs))
-    train_loss, train_accuracy = train(net, train_loader, optimizer, loss_function)
-    val_loss, val_accuracy = test(net, val_loader, loss_function)
+    train_loss, train_accuracy = train(model, train_loader, optimizer, loss_function,device)
+    val_loss, val_accuracy = test(model, val_loader, loss_function,device)
     val_loss_list.append(val_loss)
     val_accuracy_list.append(val_accuracy)
     train_loss_list.append(train_loss)
@@ -112,9 +119,9 @@ def trainer(
     val_accuracy))
   print('-----------------------------------------------------')
   print('After training:')
-  train_loss, train_accuracy = test(net, train_loader, loss_function)
-  val_loss, val_accuracy = test(net, val_loader, loss_function)
-  test_loss, test_accuracy = test(net, test_loader, loss_function)
+  train_loss, train_accuracy = test(model, train_loader, loss_function,device)
+  val_loss, val_accuracy = test(model, val_loader, loss_function,device)
+  test_loss, test_accuracy = test(model, test_loader, loss_function,device)
   print('\t Training loss {:.5f}, Training accuracy {:.2f}'.format(train_loss,
   train_accuracy))
   print('\t Validation loss {:.5f}, Validation accuracy {:.2f}'.format(val_loss,
