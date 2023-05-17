@@ -86,5 +86,5 @@ with zipfile.ZipFile(ann_instance,"r") as zip:
     zip.extractall()
 
 
-shutil.move("annotations_trainval2017", "COCOdataset/")
+shutil.move("annotations", "COCOdataset/")
 os.remove(ann_instance)
