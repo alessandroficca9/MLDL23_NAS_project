@@ -28,5 +28,8 @@ VWW_OUTPUT_DIR="visualwakewords"
   --foreground_class='person'
 ```
 
-
+To run the project
+```bash
+python main.py
+```
 
