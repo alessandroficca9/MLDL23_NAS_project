@@ -19,8 +19,6 @@ def train(net, data_loader, optimizer, loss_function, device):
   cumulative_accuracy=0
   net.train()
 
-  # Mixed precision
-  scaler = torch.cuda.amp.GradScaler()
 
   with tqdm.tqdm(total=len(data_loader)) as pbar:
 
@@ -31,16 +29,14 @@ def train(net, data_loader, optimizer, loss_function, device):
       
       optimizer.zero_grad() # reset the optimizer
 
-      with torch.cuda.amp.autocast():
-        outputs = net(inputs) # Forward pass
+      
+      outputs = net(inputs) # Forward pass
 
       loss = loss_function(outputs, targets) # Apply the loss
-      scaler.scale(loss).backward()
-      scaler.step(optimizer)
-      scaler.update()
       
-      #loss.backward() # Backward pass
-      #optimizer.step()  # update parameters
+      
+      loss.backward() # Backward pass
+      optimizer.step()  # update parameters
       
 
       samples += inputs.shape[0]
