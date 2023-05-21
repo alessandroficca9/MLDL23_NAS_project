@@ -2,6 +2,7 @@
 
 If you need to download the data, run 
 
-'''bash
+```bash
+
 python download_coco_data.py
 '''
