@@ -5,7 +5,8 @@ import torch.nn as nn
 from dataset import get_data_loader
 
 def get_optimizer(net, lr,wd,momentum):
-  optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
+  #optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
+  optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd, momentum=momentum)
   return optimizer 
 
 def get_loss_function():
@@ -13,31 +14,35 @@ def get_loss_function():
   return loss_function
 
 def train(net, data_loader, optimizer, loss_function, device):
-
+  
   samples=0
   cumulative_loss=0
   cumulative_accuracy=0
   net.train()
+
+  # try AMP
+  scaler = torch.cuda.amp.GradScaler()
 
 
   with tqdm.tqdm(total=len(data_loader)) as pbar:
 
     for batch_idx, (inputs, targets) in enumerate(data_loader):
 
+      
       # Load data into GPU
       inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
       
-      optimizer.zero_grad() # reset the optimizer
+      optimizer.zero_grad(set_to_none=True) # reset the optimizer
 
-      
-      outputs = net(inputs) # Forward pass
-
-      loss = loss_function(outputs, targets) # Apply the loss
-      
-      
-      loss.backward() # Backward pass
-      optimizer.step()  # update parameters
-      
+      with torch.cuda.amp.autocast():
+        outputs = net(inputs) # Forward pass
+        loss = loss_function(outputs, targets) # Apply the loss
+        
+      scaler.scale(loss).backward()
+      #loss.backward() # Backward pass
+      scaler.step(optimizer)
+      #optimizer.step()  # update parameters
+      scaler.update()
 
       samples += inputs.shape[0]
       cumulative_loss += loss.item()

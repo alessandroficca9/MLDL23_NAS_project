@@ -37,9 +37,9 @@ def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch
       [training_samples, validation_samples]
   ) 
 
-  # Initialize dataloader
-  train_loader = torch.utils.data.DataLoader(training_data, batch_size, shuffle=True)
-  val_loader = torch.utils.data.DataLoader(validation_data, batch_size, shuffle=False)
-  test_loader = torch.utils.data.DataLoader(test_data, test_batch_size, shuffle=False)
+  # Initialize dataloader   
+  train_loader = torch.utils.data.DataLoader(training_data, batch_size, shuffle=True, num_workers=4)    # check if it works with num_workers=4
+  val_loader = torch.utils.data.DataLoader(validation_data, batch_size, shuffle=False, num_workers=4)
+  test_loader = torch.utils.data.DataLoader(test_data, test_batch_size, shuffle=False, num_workers=4)
 
   return train_loader, val_loader, test_loader

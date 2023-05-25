@@ -3,31 +3,19 @@ import random
 import math 
 
 
+
+
 building_blocks = {
-    "ConvBNReLU" : ConvolutionalBlock,
+    #"ConvBNReLU" : ConvolutionalBlock,
     "InvertedResidual" : InvertedResidualBlock,
     "DWConv" : DepthwiseSeparableConvBlock,
     "BottleneckResidual" : BottleneckResidualBlock,
-    #"ConvNeXt" : ConvNeXt,
+    "ConvNeXt" : ConvNeXt,
     #"AdaptiveAvgPool2x2" : nn.AdaptiveAvgPool2d,
     #"AdaptiveMaxPool2x2" : nn.MaxPool2d,
 }
 
 channels = [16, 32, 64, 96, 160, 320]
-
-def generate_random_network(input_channels_first, num_max_blocks):
-
-    blocks = []
-    input_channels = input_channels_first
-    
-    for _ in range(num_max_blocks):
-        block_type = random.choice(list(building_blocks.keys()))
-        output_channels = random.choice(channels)
-        blocks.append( (block_type, input_channels, output_channels))
-        input_channels = output_channels
-        
-    return blocks
-
 
 class NetworkDecoded(nn.Module):
 
@@ -37,8 +25,13 @@ class NetworkDecoded(nn.Module):
         self.layers = nn.Sequential()
 
         for block_type, input_ch, output_ch in network_encoding:
-            self.layers.append(
-                building_blocks[block_type](input_ch,output_ch) )
+            if block_type == "ConvNeXt":
+                self.layers.append(
+                    building_blocks[block_type](input_ch)
+                )
+            else:
+                self.layers.append(
+                    building_blocks[block_type](input_ch,output_ch) )
             
 
         # building classifier
@@ -47,12 +40,12 @@ class NetworkDecoded(nn.Module):
             nn.Linear(output_ch, num_classes) )
         
         # convert to half precision
-        self.half()
+        #self.half()
 
         # convert BatchNorm to float32
-        for layer in self.modules():
-            if isinstance(layer, nn.BatchNorm2d):
-                layer.float()
+        #for layer in self.modules():
+        #    if isinstance(layer, nn.BatchNorm2d):
+        #        layer.float()
         
     def forward(self, x):
         for layer in self.layers:
@@ -78,6 +71,26 @@ class NetworkDecoded(nn.Module):
           elif isinstance(m, nn.Linear):
               m.weight.data.normal_(0, 0.01)
               m.bias.data.zero_()
+
+
+
+
+def generate_random_network(input_channels_first, num_max_blocks):
+
+    blocks = []
+    input_channels = input_channels_first
+    
+    for _ in range(random.randint(1,num_max_blocks)):
+        block_type = random.choice(list(building_blocks.keys()))
+        if block_type == "ConvNeXt":
+            output_channels = input_channels
+        else:
+            output_channels = random.choice(channels)
+        blocks.append( (block_type, input_channels, output_channels))
+        input_channels = output_channels
+        
+    return blocks
+
 
 def random_search(num_iterations, num_max_blocks):
 
