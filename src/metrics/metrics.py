@@ -7,12 +7,18 @@ import types
 from typing import Union, Text 
 
 
+
+
+
 def get_params(model: nn.Module):
 
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     return model_params
 
-def count_flops(model: nn.Module, input: torch.Tensor):
+def count_flops(model, input, device):
+    model = model.to(device)
+    input = input.to(device)
+
     flops = FlopCountAnalysis(model, input)
     return flops.total()
 
@@ -142,3 +148,16 @@ def sum_arr(arr):
     for i in range(len(arr)):
         sum += torch.sum(arr[i])
     return sum.item()
+
+
+METRICS = {
+    "synflow" : compute_synflow_per_weight,
+    "naswot" : compute_naswot_score
+}
+
+PARAMS = {
+    "FLOPS" : count_flops,
+    "#Parameters" : get_params,
+}
+
+

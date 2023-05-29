@@ -1,44 +1,89 @@
 
+import random
 from metrics.metrics import *
-import torch.nn as nn 
+import torch.nn as nn
+
+from search_space import BUILDING_BLOCKS 
 
 
-def get_ranking_based_on_metrics(networks, input,device='cpu'):
 
-    synflows_scores = [ (model, compute_synflow_per_weight(model,input,device)) for model in networks]
-    naswot_scores = [ (model, compute_naswot_score(model, input, device) ) for model in networks]
+# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# INPUT = torch.rand(1,3,224,224)
 
-    networks_synflow_scores_sorted = sorted(synflows_scores,key=lambda x: x[1],reverse=True)
-    networks_naswot_scores_sorted = sorted(naswot_scores, key=lambda x: x[1], reverse=True)
+def get_rank_based_on_metrics(exemplars, metrics):
+
+    scores = {exemplar : 0 for exemplar in exemplars}
+
+    for metric in metrics:
+        rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric), reverse=True)
+
+        for i,exemplar in enumerate(rank_metric):
+            scores[exemplar] += i
+
+    final_rank = dict(sorted(scores.items(), key=lambda x: x[1])).keys()
+
+    return list(final_rank)
 
 
-    #print("synflow")
-    #print(networks_synflow_scores_sorted)
-    #print("naswot")
-    #print(networks_naswot_scores_sorted)
-
-    networks_total_rank = []
-    for i,model_nas in enumerate(networks_naswot_scores_sorted):
-        for j, model_syn in enumerate(networks_synflow_scores_sorted):
-            if model_nas[0] == model_syn[0]:
-                networks_total_rank.append( (model_nas[0], i+j) )
-
-    networks_total_rank_sorted = sorted(networks_total_rank, key=lambda x: x[1])
-
-    #print(networks_total_rank_sorted)
-    #print(len(networks_total_rank_sorted))
-    return [ model[0] for model in networks_total_rank_sorted]
 
 def get_top_k_models(networks, k):
     return networks[:k]
 
-def isfeasible(model: nn.Module,input: torch.Tensor, max_flops: int, max_params: int):
+# def compute_cost_info(model):
     
-    params = get_params(model)
-    flops = count_flops(model, input)
+#     flops = count_flops(model, INPUT, DEVICE)
+#     params = get_params(model)
 
-    if params <= max_params and flops <= max_flops:
-        return True 
-    return False
+#     costs_info = {
+#         "FLOPS" : flops, 
+#         "#Parameters" : params
+#     }
+    
+#     return costs_info
 
 
+    
+
+# def compute_scores_metrics(model):
+
+#     metrics_scores = { metric : METRICS[metric](model, INPUT, DEVICE) for metric in METRICS.keys() }
+#     return metrics_scores
+
+
+channels = [16, 32, 64, 96, 160, 320]
+#kernel_sizes = [1,3,5,7]
+#stride = [1,2,3]
+
+## Structure of block:
+## [ block_type, output_channels]   
+
+def generate_random_network_encode(input_channels_first, num_max_blocks):
+
+    input_channels = input_channels_first
+    blocks = []
+
+    for _ in range(random.randint(1,num_max_blocks)):
+
+        block = generate_random_block(input_channels)
+        blocks.append(block)
+        input_channels = block[1]   # next input channels = current output channels
+       
+    return blocks    
+        
+def generate_random_block(input_channels):
+
+    block_type = random.choice(list(BUILDING_BLOCKS.keys()))
+    block = generate_random_params(block_type, input_channels)
+    return block 
+
+
+def generate_random_params(block_type, input_channels):
+     
+    if block_type == "ConvNeXt":
+        output_channels = input_channels
+    else:
+        output_channels = random.choice(channels)
+        # possibly add kernel, stride, expansion, padding ..., use of residual
+    
+    return [block_type, output_channels]
+    

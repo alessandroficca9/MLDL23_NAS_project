@@ -6,7 +6,7 @@ from dataset import get_data_loader
 
 def get_optimizer(net, lr,wd,momentum):
   #optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
-  optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd, momentum=momentum)
+  optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd)
   return optimizer 
 
 def get_loss_function():
@@ -63,10 +63,15 @@ def test(net, data_loader, loss_function, device='cuda:0'):
       for batch_idx, (inputs, targets) in enumerate(data_loader):
         # Load data into GPU
         inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
+        
+        with torch.cuda.amp.autocast():
+          outputs = net(inputs)
+          loss = loss_function(outputs, targets)
+
         # Forward pass
-        outputs = net(inputs)
+        #outputs = net(inputs)
         _, predicted = outputs.max(1)
-        loss = loss_function(outputs,targets) 
+        #loss = loss_function(outputs,targets) 
         samples += inputs.shape[0]
         cumulative_loss += loss.item()
         cumulative_accuracy += predicted.eq(targets).sum().item()

@@ -1,4 +1,65 @@
 from torch import nn
+import math 
+
+
+class NetworkDecoded(nn.Module):
+
+    def __init__(self, network_encoding, num_classes, input_channels_first=3):
+        super(NetworkDecoded, self).__init__()
+
+        self.layers = nn.Sequential()
+        
+        input_ch = input_channels_first
+        
+        for block_type, output_ch in network_encoding:
+            if block_type == "ConvNeXt":
+                self.layers.append(
+                    BUILDING_BLOCKS[block_type](input_ch)
+                )
+            else:
+                self.layers.append(
+                    BUILDING_BLOCKS[block_type](input_ch,output_ch) )
+
+            input_ch = output_ch 
+
+
+        # building classifier
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(output_ch, num_classes) )
+        # convert to half precision
+        #self.half()
+
+        # convert BatchNorm to float32
+        #for layer in self.modules():
+        #    if isinstance(layer, nn.BatchNorm2d):
+        #        layer.float()
+        
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+            _, _, h, w = x.size()
+            x = nn.AdaptiveAvgPool2d((h, w))(x)  # Adattamento delle dimensioni spaziali
+
+        x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)     # forse togliere adaptive avg pool finale??
+        x = self.classifier(x)
+        return x
+    
+    def _initialize_weights(self):
+      
+      for m in self.modules():
+          if isinstance(m, nn.Conv2d):
+              n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+              m.weight.data.normal_(0, math.sqrt(2. / n))
+              if m.bias is not None:
+                    m.bias.data.zero_()
+          elif isinstance(m, nn.BatchNorm2d):
+              m.weight.data.fill_(1)
+              m.bias.data.zero_()
+          elif isinstance(m, nn.Linear):
+              m.weight.data.normal_(0, 0.01)
+              m.bias.data.zero_()
+
 
 
 
@@ -139,6 +200,16 @@ class ConvNeXt(nn.Module):
 
         x += input
         return x 
+    
+BUILDING_BLOCKS = {
+    #"ConvBNReLU" : ConvolutionalBlock,
+    "InvertedResidual" : InvertedResidualBlock,
+    "DWConv" : DepthwiseSeparableConvBlock,
+    "BottleneckResidual" : BottleneckResidualBlock,
+    "ConvNeXt" : ConvNeXt,
+    #"AdaptiveAvgPool2x2" : nn.AdaptiveAvgPool2d,
+    #"AdaptiveMaxPool2x2" : nn.MaxPool2d,
+}
 
 
 
