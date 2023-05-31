@@ -3,7 +3,7 @@ from metrics.metrics import compute_naswot_score, compute_synflow_per_weight, co
 #from exemplar import Exemplar
 
 
-def comput_metrics(exemplar, inputs, device):
+def compute_metrics(exemplar, inputs, device):
 
     if exemplar.metrics == None:
         exemplar.metrics = {}
@@ -22,14 +22,14 @@ def comput_metrics(exemplar, inputs, device):
 def compute_metrics_population(population, inputs, device):
 
     for exemplar in population:
-        comput_metrics(exemplar=exemplar, inputs=inputs, device=device)
+        compute_metrics(exemplar=exemplar, inputs=inputs, device=device)
 
     return 
     
 def isfeasible(exemplar, max_params: int, max_flops: int, inputs, device): 
 
     if exemplar.get_cost_info() == None:
-        comput_metrics(exemplar=exemplar, inputs=inputs, device=device)
+        compute_metrics(exemplar=exemplar, inputs=inputs, device=device)
 
     cost_info = exemplar.get_cost_info()
 

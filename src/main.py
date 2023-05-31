@@ -4,6 +4,7 @@ from train import trainer
 import torch
 from random_search import search_random
 from dataset import get_data_loader 
+from evolution_search import search_evolution
 
 
 
@@ -58,7 +59,7 @@ def main():
                                                                         path_annotations_val,
                                                                         64)
     inputs = next(iter(train_dataloader))
-    print(inputs)
+    #print(inputs)
 
     # best_models = search_random(num_iterations=15,
     #                             num_max_blocks=7,
@@ -81,7 +82,14 @@ def main():
     #         print(model.get_metric_score("naswot"))
         
 
-    
+    search_evolution(population_size=25,
+                 num_max_blocks=9,
+                 max_step=100,
+                 metrics=['synflow', 'naswot'],
+                 inputs = inputs,
+                 device=device,
+                 max_flops=200*(10**6),
+                 max_params=25*(10**5))
 
     """
 

@@ -4,7 +4,7 @@ from metrics.metrics import *
 import torch.nn as nn
 
 from search_space import BUILDING_BLOCKS 
-
+from metrics.utils_metrics import compute_metrics_population
 
 
 # DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -13,7 +13,7 @@ from search_space import BUILDING_BLOCKS
 def get_rank_based_on_metrics(exemplars, metrics):
 
     scores = {exemplar : 0 for exemplar in exemplars}
-
+    
     for metric in metrics:
         rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric), reverse=True)
 
@@ -29,25 +29,6 @@ def get_rank_based_on_metrics(exemplars, metrics):
 def get_top_k_models(networks, k):
     return networks[:k]
 
-# def compute_cost_info(model):
-    
-#     flops = count_flops(model, INPUT, DEVICE)
-#     params = get_params(model)
-
-#     costs_info = {
-#         "FLOPS" : flops, 
-#         "#Parameters" : params
-#     }
-    
-#     return costs_info
-
-
-    
-
-# def compute_scores_metrics(model):
-
-#     metrics_scores = { metric : METRICS[metric](model, INPUT, DEVICE) for metric in METRICS.keys() }
-#     return metrics_scores
 
 
 channels = [16, 32, 64, 96, 160, 320]
