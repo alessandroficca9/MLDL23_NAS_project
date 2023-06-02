@@ -1,0 +1,6 @@
+NAS_venv
+src/__pycache__
+src/models/__pycache__
+COCOdataset
+visualwakewords
+COCOdataset.zip

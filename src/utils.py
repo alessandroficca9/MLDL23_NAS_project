@@ -13,7 +13,7 @@ from metrics.utils_metrics import compute_metrics_population
 def get_rank_based_on_metrics(exemplars, metrics):
 
     scores = {exemplar : 0 for exemplar in exemplars}
-    
+
     for metric in metrics:
         rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric), reverse=True)
 

@@ -4,6 +4,7 @@ from random_search import generate_random_network_encode, get_rank_based_on_metr
 import random
 from metrics.utils_metrics import compute_metrics_population
 from ea_utils import update_history, prune_population, clean_history
+
 def population_init(N, num_max_blocks):
 
     population = []
@@ -48,8 +49,9 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
                                       max_params=max_params, max_flops=max_flops)
         
     history = clean_history(history, inputs, device, max_params=max_params, max_flops=max_flops)
-
-        
+    final_models = get_rank_based_on_metrics(history.values(), metrics)
+    best_models = get_top_k_models(final_models, k=3)
+    return best_models
 
 def mutation(parents, crossover=True, age=0):
 
