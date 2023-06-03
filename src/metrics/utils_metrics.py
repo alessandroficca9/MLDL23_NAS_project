@@ -9,7 +9,7 @@ def compute_metrics(exemplar, inputs, device):
         inputs.to(device)
 
     model = exemplar.get_model()
-    
+
     if not next(model.parameters()).is_cuda:
         model.to(device)
 
@@ -23,7 +23,7 @@ def compute_metrics(exemplar, inputs, device):
         exemplar.cost_info = {}
         # exemplar.cost_info['FLOPS'] = count_flops(model=model, input=inputs[0], device=device)
         # exemplar.cost_info["#Parameters"] = get_params(model=model)
-        params, flops = get_params_flops(model, inputs)
+        params, flops = get_params_flops(model, inputs,device)
         exemplar.cost_info["FLOPS"] = flops
         exemplar.cost_info["#Parameters"] = params
 

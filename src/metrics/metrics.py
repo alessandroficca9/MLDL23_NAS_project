@@ -5,7 +5,7 @@ from fvcore.nn import FlopCountAnalysis
 from torch.nn.modules.batchnorm import _BatchNorm
 import types
 from typing import Union, Text 
-from flopth import flopth
+
 
 
 
@@ -27,11 +27,11 @@ from flopth import flopth
 #     num_flops, num_params = flopth(model, in_size=tuple((inputs.shape)[1:]))
 #     return num_params, num_flops
 
-def get_params_flops(model, inputs):
+def get_params_flops(model, inputs,device):
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     input_dim = list( (inputs.shape)[1:])
-    input = torch.rand([1] + input_dim)
+    input = torch.rand([1] + input_dim).to(device)
 
     flops = FlopCountAnalysis(model, input)
     flops.set_op_handle("aten::add_",None)
