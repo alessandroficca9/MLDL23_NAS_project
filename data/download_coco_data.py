@@ -3,6 +3,15 @@ import os
 import zipfile 
 import shutil
 import requests
+import sys
+
+
+
+def bar_progress(current, total, width=80):
+  progress_message = "Downloading: %d%% [%d / %d] bytes" % (current / total * 100, current, total)
+  # Don't use print() as it will print in new line every time.
+  sys.stdout.write("\r" + progress_message)
+  sys.stdout.flush()
 
 url = "http://images.cocodataset.org/zips"
 
@@ -18,7 +27,7 @@ os.mkdir("COCOdataset")
 
 # download train2017.zip
 print("downloading train2017.zip ...")
-wget.download(url="http://images.cocodataset.org/zips/train2017.zip")
+wget.download(url="http://images.cocodataset.org/zips/train2017.zip", bar=bar_progress)
 
 
 print("Unzipping train2017.zip ...")
@@ -31,7 +40,7 @@ os.remove("train2017.zip")
 
 # download val2017.zip
 print("downloading val2017.zip ...")
-wget.download(val_download)
+wget.download(val_download, bar=bar_progress)
 
 # unzip
 print("Unzipping val2017.zip ..")
@@ -86,7 +95,10 @@ wget.download( os.path.join(annotations_url, ann_instance))
 with zipfile.ZipFile(ann_instance,"r") as zip:
     zip.extractall()
 
+print("Download data complete")
+
 
 shutil.move("annotations", "COCOdataset/")
 os.remove("annotations_trainval2017.zip")
+
 

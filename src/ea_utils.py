@@ -11,12 +11,12 @@ def create_history(exemplars):
 def update_history(exemplars, history):
     
     # add new exemplars
-    history.update( {exemplar.network_encode : exemplar for exemplar in exemplars if exemplar.network_encode not in history})
+    history.update( {encode_model(exemplar.network_encode) : exemplar for exemplar in exemplars if encode_model(exemplar.network_encode) not in history})
     return history
 
 def clean_history(history, inputs, device, max_params, max_flops):
     history = { network_encode : exemplar for network_encode, exemplar in history.items()
-               if isfeasible(exemplar, inputs, device, max_flops=max_flops, max_params=max_params)}
+               if isfeasible(exemplar, max_params, max_flops, inputs, device)}
     return history
 
 
@@ -45,3 +45,13 @@ def analyze_history(history, metrics):
     history_models = get_rank_based_on_metrics(list(history.values()), metrics)
     top_models = get_top_k_models(history_models, k=3)
     return top_models
+
+
+
+def encode_model(block_list):
+    
+    block_str = ""
+    for block in block_list:
+        block_str += f"({block[0]}, {block[1]});"
+    
+    return block_str

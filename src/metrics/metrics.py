@@ -5,22 +5,37 @@ from fvcore.nn import FlopCountAnalysis
 from torch.nn.modules.batchnorm import _BatchNorm
 import types
 from typing import Union, Text 
+from flopth import flopth
 
 
 
 
+# def get_params(model: nn.Module):
 
-def get_params(model: nn.Module):
+#     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+#     return model_params
 
+# def count_flops(model, input, device):
+    
+
+#     flops = FlopCountAnalysis(model, input)
+#     return flops.total()
+
+
+
+# def get_params_flops(model, inputs):
+#     num_flops, num_params = flopth(model, in_size=tuple((inputs.shape)[1:]))
+#     return num_params, num_flops
+
+def get_params_flops(model, inputs):
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    return model_params
 
-def count_flops(model, input, device):
-    model = model.to(device)
-    input = input.to(device)
+    input_dim = list( (inputs.shape)[1:])
+    input = torch.rand([1] + input_dim)
 
     flops = FlopCountAnalysis(model, input)
-    return flops.total()
+    flops.set_op_handle("aten::add_",None)
+    return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):
     with torch.no_grad():
@@ -154,10 +169,4 @@ METRICS = {
     "synflow" : compute_synflow_per_weight,
     "naswot" : compute_naswot_score
 }
-
-PARAMS = {
-    "FLOPS" : count_flops,
-    "#Parameters" : get_params,
-}
-
 

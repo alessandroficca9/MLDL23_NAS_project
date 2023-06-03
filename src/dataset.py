@@ -10,7 +10,7 @@ def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch
   # Check resize try other values
   # Data augumentation? 
   transform = T.Compose([
-      T.Resize((227,227)),
+      T.Resize((224,224)),
       T.ToTensor()
   ])
 
