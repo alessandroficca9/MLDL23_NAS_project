@@ -1,3 +1,4 @@
+from math import inf
 import torch
 import tqdm
 import torch.nn as nn
@@ -108,6 +109,10 @@ def trainer(
   train_loss_list = []
   train_accuracy_list = []
 
+  last_loss = inf 
+  trigger_times = 0
+  patience = 3
+
   for e in range(epochs):
     print('training epoch number {:.2f} of total epochs of {:.2f}'.format(e,epochs))
     train_loss, train_accuracy = train(model, train_loader, optimizer, loss_function,device)
@@ -117,12 +122,28 @@ def trainer(
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
 
-
+    current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))
     print('\t Training loss {:.5f}, Training accuracy {:.2f}'.format(train_loss,
     train_accuracy))
     print('\t Validation loss {:.5f}, Validation accuracy {:.2f}'.format(val_loss,
     val_accuracy))
+
+
+    ## Early stopping
+    if current_loss > last_loss:
+      trigger_times += 1
+      print("Trigger times: ", trigger_times)
+
+      if trigger_times >= patience:
+        print("Early stopping!\n Terminate training")
+        break
+    else:
+      trigger_times = 0
+    
+    last_loss = current_loss
+
+
   print('-----------------------------------------------------')
   print('After training:')
   train_loss, train_accuracy = test(model, train_loader, loss_function,device)
