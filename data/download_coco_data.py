@@ -30,7 +30,7 @@ print("downloading train2017.zip ...")
 wget.download(url="http://images.cocodataset.org/zips/train2017.zip", bar=bar_progress)
 
 
-print("Unzipping train2017.zip ...")
+print("\nUnzipping train2017.zip ...")
 with zipfile.ZipFile('train2017.zip',"r") as zip:
     zip.extractall()
 
@@ -43,7 +43,7 @@ print("downloading val2017.zip ...")
 wget.download(val_download, bar=bar_progress)
 
 # unzip
-print("Unzipping val2017.zip ..")
+print("\nUnzipping val2017.zip ..")
 with zipfile.ZipFile('val2017.zip', 'r') as zip:
     zip.extractall()
 

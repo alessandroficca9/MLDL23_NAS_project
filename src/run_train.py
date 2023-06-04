@@ -49,6 +49,8 @@ MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(tra
                                                                                  momentum=momentum,
                                                                                  epochs=epochs,
                                                                                  model= model,
-                                                                                 device=device )
+                                                                                 device=device,
+                                                                                 use_subset=True
+                                                                                 )
     
 
