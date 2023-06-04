@@ -28,8 +28,22 @@ VWW_OUTPUT_DIR="visualwakewords"
   --foreground_class='person'
 ```
 
-To run the project
+To run the search algorithm, use the following code. The parameters are:
+- algo: type of algorithm. You can choose between "random_search", "ea_search" (evolutionary algorithm), "our_cnn" (manually design cnn)
+- max_flops: constraint about number of flops
+- max_params: constraint about number of parameters
+- initial_pop: initial population size (needed if you choose "ea_search")
+- generation_ea: number of steps of evolutionary algorithm (needed if you choose "ea_search")
+- n_random: number of steps of random search (needed if you choose "random_search")
+- save: if True the result model
 ```bash
-python main.py
+python run_search.py \
+  --algo ea_search
+  --max_flops 200000000
+  --max_params 2500000
+  --inital_pop 25
+  --generation_ea 100
+  --save True
 ```
+
 
