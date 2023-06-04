@@ -32,11 +32,11 @@ def get_top_k_models(networks, k):
 
 
 channels = [16, 32, 64, 96, 160, 320]
-#kernel_sizes = [1,3,5,7]
-#stride = [1,2,3]
+kernel_sizes = [3,5,7]
+expansion_factors = [2,4,6]  # for only inverted residual block
 
 ## Structure of block:
-## [ block_type, output_channels]   
+## [ block_type, output_channels, ]   
 
 def generate_random_network_encode(input_channels_first, num_max_blocks):
 
@@ -60,11 +60,20 @@ def generate_random_block(input_channels):
 
 def generate_random_params(block_type, input_channels):
      
+    kernel_size = 0
+    #stride = 0
+    expansion_factor = 0
+
     if block_type == "ConvNeXt":
         output_channels = input_channels
     else:
         output_channels = random.choice(channels)
-        # possibly add kernel, stride, expansion, padding ..., use of residual
+        kernel_size = random.choice(kernel_sizes)
+        #stride = random.choice(strides)
     
-    return [block_type, output_channels]
+    if block_type == "InvertedResidual" or block_type == "ConvNeXt":
+        expansion_factor = random.choice(expansion_factors)
+        
+    
+    return [block_type, output_channels, kernel_size,expansion_factor]
     

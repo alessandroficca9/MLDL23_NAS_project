@@ -10,8 +10,8 @@ def main():
     parser = ArgumentParser()
     
     parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search"))
-    parser.add_argument('--max_flops', type=float, default=float('inf'))
-    parser.add_argument('--max_params', type=float, default=float('inf'))
+    parser.add_argument('--max_flops', type=float, default=200*(10**6))
+    parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--n_random', type=int, default=10)
     parser.add_argument('--initial_pop', type=int, default=25)
     parser.add_argument('--generation_ea', type=int, default=100)
@@ -20,11 +20,8 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    
-    
-    
     mini_batch_size = 8
-    inputs = torch.rand(mini_batch_size,3,224,224).to(device)
+    inputs = torch.rand(mini_batch_size,3,96,96).to(device)
 
     args = parser.parse_args()
     max_flops = args.max_flops
@@ -68,9 +65,6 @@ def main():
     if args.save:
         model = best_models[0].get_model()
         torch.save(model, 'model.pth')
-    
-    
-    
                                                                                  
 
     return 
