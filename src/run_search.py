@@ -52,7 +52,7 @@ def main():
                                     inputs=inputs,
                                     device=device)
         model = best_models[0]
-        
+
     elif args.algo == "our_cnn":
         model = ResNet()
 
