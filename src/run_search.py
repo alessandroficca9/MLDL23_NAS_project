@@ -22,7 +22,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     mini_batch_size = 8
-    inputs = torch.rand(mini_batch_size,3,96,96).to(device)
+    inputs = torch.rand(mini_batch_size,3,224,224).to(device)
 
     args = parser.parse_args()
     max_flops = args.max_flops
@@ -39,7 +39,7 @@ def main():
                                        device=device,
                                        max_flops=max_flops,
                                        max_params=max_params)
-        model = best_models[0]
+        model = best_models[0].get_model()
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
@@ -51,25 +51,26 @@ def main():
                                     metrics=['synflow','naswot'],
                                     inputs=inputs,
                                     device=device)
-        model = best_models[0]
+        model = best_models[0].get_model()
 
     elif args.algo == "our_cnn":
         model = ResNet()
 
     print("best models ea")
     if len(best_models) > 0:
-        for model in best_models:
-            print(f"model: {model.get_model()}")
-            print(f"info flops and params {model.get_cost_info()}")
-            print(f"synflow score: {model.get_metric_score('synflow')}")
-            print(f"naswot score: {model.get_metric_score('naswot')}")
+        for nn in best_models:
+            print(f"model: {nn.get_model()}")
+            print(f"info flops and params {nn.get_cost_info()}")
+            print(f"synflow score: {nn.get_metric_score('synflow')}")
+            print(f"naswot score: {nn.get_metric_score('naswot')}")
 
 
     
-    if args.save:
-        torch.save(model, 'model.pth')
-                                                                                 
 
+    if args.save:    
+            torch.save(model, 'model.pth')
+
+    
     return 
 
 

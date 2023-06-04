@@ -30,8 +30,12 @@ def train(net, data_loader, optimizer, loss_function, device):
     for batch_idx, (inputs, targets) in enumerate(data_loader):
 
       
-      # Load data into GPU
-      inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
+      # Load data into GPU or cpu
+      if device == 'cpu':
+        inputs, targets = inputs.to(device), targets.to(device)
+      # load data on GPU
+      else:
+        inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
       
       optimizer.zero_grad(set_to_none=True) # reset the optimizer
 
@@ -62,9 +66,15 @@ def test(net, data_loader, loss_function, device='cuda:0'):
   with tqdm.tqdm(total=len(data_loader)) as pbar:  
     with torch.no_grad():
       for batch_idx, (inputs, targets) in enumerate(data_loader):
-        # Load data into GPU
-        inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
         
+        # Load data into GPU or cpu
+        if device == 'cpu':
+          inputs, targets = inputs.to(device), targets.to(device)
+        # load data on GPU
+        else:
+          inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
+        
+
         with torch.cuda.amp.autocast():
           outputs = net(inputs)
           loss = loss_function(outputs, targets)
