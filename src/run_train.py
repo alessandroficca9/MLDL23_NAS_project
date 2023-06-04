@@ -38,16 +38,16 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 train_dataloader, val_dataloader, test_dataloader = get_data_loader(root_data,
                                                                         path_annotations_train,
                                                                         path_annotations_val,
-                                                                        64)
+                                                                        batch_size=batch_size)
 #inputs = next(iter(train_dataloader))
 
 MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(train_dataloader,
                                                                                  val_dataloader,
                                                                                  test_dataloader,
-                                                                                 learning_rate=0.1,
-                                                                                 weight_decay=0.000001,
-                                                                                 momentum=0.9,
-                                                                                 epochs=2,
+                                                                                 learning_rate=learning_rate,
+                                                                                 weight_decay=weigth_decay,
+                                                                                 momentum=momentum,
+                                                                                 epochs=epochs,
                                                                                  model= model,
                                                                                  device=device )
     
