@@ -1,5 +1,6 @@
 # MLDL23_NAS_project
 
+## Download the data
 If you need to download the data, run 
 
 ```bash
@@ -27,9 +28,47 @@ VWW_OUTPUT_DIR="visualwakewords"
   --threshold=0.005 \
   --foreground_class='person'
 ```
+## Run the project
+To run the search algorithm, use the following code. The parameters are:
+- algo: type of algorithm. You can choose between "random_search", "ea_search" (evolutionary algorithm), "our_cnn" (manually design cnn)
+- max_flops: constraint about number of flops
+- max_params: constraint about number of parameters
+- initial_pop: initial population size (needed if you choose "ea_search")
+- generation_ea: number of steps of evolutionary algorithm (needed if you choose "ea_search")
+- n_random: number of steps of random search (needed if you choose "random_search")
+- save: if True the result model is stored in the file "model.pth"
 
-To run the project
 ```bash
-python main.py
+python run_search.py \
+  --algo ea_search
+  --max_flops 200000000
+  --max_params 2500000
+  --inital_pop 25
+  --generation_ea 100
+  --save True
+```
+
+To train the model on the visualwakeword dataset, run the following code. The parameters are
+- model: path of file in which is stored the model ("model.pth" as default)
+- root_data: path of the dataset folder
+- ann_train: path of the annotations train file
+- ann_val: path of the annotations validation file
+- batch_size: size of the batch for the training phase
+- learning_rate: 
+- momentum:
+- epochs
+- weight_decay:
+
+```bash
+python run_train.py \
+  --model "model.pth"
+  --root_data "COCOdataset/all2017"
+  --ann_train "visualwakewords/instances_train.json"
+  --ann_val "visualwakewords/instances_val.json"
+  --batch_size 64
+  --learning_rate 0.1
+  --momentum 0.9
+  --epochs 10
+  --weight_decay 0.000001
 ```
 
