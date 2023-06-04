@@ -2,14 +2,15 @@ from argparse import ArgumentParser
 import torch
 from random_search import search_random
 from evolution_search import search_evolution
-
+from models.resnet import ResNet
+from models.MobileNetV2 import MobileNetV2
 
 
 def main():
     
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search"))
+    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","our_cnn"))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--n_random', type=int, default=10)
@@ -38,7 +39,7 @@ def main():
                                        device=device,
                                        max_flops=max_flops,
                                        max_params=max_params)
-    
+        model = best_models[0]
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
@@ -50,7 +51,10 @@ def main():
                                     metrics=['synflow','naswot'],
                                     inputs=inputs,
                                     device=device)
-    
+        model = best_models[0]
+        
+    elif args.algo == "our_cnn":
+        model = ResNet()
 
     print("best models ea")
     if len(best_models) > 0:
@@ -63,7 +67,6 @@ def main():
 
     
     if args.save:
-        model = best_models[0].get_model()
         torch.save(model, 'model.pth')
                                                                                  
 
