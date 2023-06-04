@@ -32,13 +32,13 @@ class NetworkDecoded(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(output_ch, num_classes) )
         
-        # convert to half precision
-        self.half()
+        # # convert to half precision
+        # self.half()
 
-        #convert BatchNorm to float32
-        for layer in self.modules():
-           if isinstance(layer, nn.BatchNorm2d):
-               layer.float()
+        # #convert BatchNorm to float32
+        # for layer in self.modules():
+        #    if isinstance(layer, nn.BatchNorm2d):
+        #        layer.float()
         
     def forward(self, x):
         for layer in self.layers:

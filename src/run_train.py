@@ -8,8 +8,8 @@ from train import trainer
 parser = ArgumentParser(description="run the model")
 parser.add_argument("--model", type=str, default='model.pth')
 parser.add_argument("--root_data", type=str, default="COCOdataset/all2017")
-parser.add_argument("--ann_train", type=str, default="MLDL23_NAS_Project/visualwakewords/instances_train.json")
-parser.add_argument("--ann_val", type=str, default="MLDL23_NAS_Project/visualwakewords/instances_val.json")
+parser.add_argument("--ann_train", type=str, default="visualwakewords\instances_train.json")
+parser.add_argument("--ann_val", type=str, default="visualwakewords\instances_val.json")
 parser.add_argument("--batch_size", type=int, default=64)
 parser.add_argument("--learning_rate", type=float, default=0.1)
 parser.add_argument("--momentum", type=float, default=0.9)
@@ -38,7 +38,9 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 train_dataloader, val_dataloader, test_dataloader = get_data_loader(root_data,
                                                                         path_annotations_train,
                                                                         path_annotations_val,
-                                                                        batch_size=batch_size)
+                                                                        batch_size=batch_size,
+                                                                        use_subset=True)
+
 #inputs = next(iter(train_dataloader))
 
 MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(train_dataloader,
@@ -50,7 +52,6 @@ MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(tra
                                                                                  epochs=epochs,
                                                                                  model= model,
                                                                                  device=device,
-                                                                                 use_subset=True
                                                                                  )
     
 

@@ -50,7 +50,13 @@ def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.dev
             if isinstance(m, nn.ReLU):
                 hooks.append(m.register_forward_hook(hook))
 
-        _ = net(inputs)
+        if device == "cuda":
+            inputs = inputs.type(torch.float16).to(device)
+            with torch.cuda.amp.autocast():
+                _ = net(inputs)
+        else:
+            _ = net(inputs) 
+
 
         for h in hooks:
             h.remove()

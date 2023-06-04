@@ -14,6 +14,8 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
         exemplar = Exemplar(network_encode, age=0)
         if isfeasible(exemplar,max_params, max_flops, inputs, device):
             population.append(exemplar)
+        else:
+            del exemplar
     
     return population
 
@@ -35,7 +37,7 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
     print("Start evolution ...")
     for step in range(max_step):
         
-
+        print(f"Generation {step} ...")
         sampled = random.sample(population,k=5)
         sampled = get_rank_based_on_metrics(sampled, metrics)
 
