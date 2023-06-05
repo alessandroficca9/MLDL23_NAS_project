@@ -21,8 +21,11 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    mini_batch_size = 8
-    inputs = torch.rand(mini_batch_size,3,224,224,dtype=torch.float16).to(device)
+    mini_batch_size = 4
+    if device == "cpu":
+         inputs = torch.rand(mini_batch_size,3,224,224).to(device)
+    else:
+        inputs = torch.rand(mini_batch_size,3,224,224).type(torch.float16).to(device)
 
     args = parser.parse_args()
     max_flops = args.max_flops
@@ -32,7 +35,7 @@ def main():
         population_size = args.initial_pop
         num_generations = args.generation_ea
         best_models = search_evolution(population_size=population_size,
-                                       num_max_blocks=7,
+                                       num_max_blocks=3,
                                        max_step=num_generations,
                                        metrics=['synflow', 'naswot'],
                                        inputs=inputs,
