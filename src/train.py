@@ -6,8 +6,8 @@ import torch.nn as nn
 from dataset import get_data_loader
 
 def get_optimizer(net, lr,wd,momentum):
-  #optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
-  optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd)
+  optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
+  #optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd)
   return optimizer 
 
 def get_loss_function():
@@ -19,11 +19,12 @@ def train(net, data_loader, optimizer, loss_function, device):
   samples=0
   cumulative_loss=0
   cumulative_accuracy=0
+  
   net.train()
 
-  # try AMP
-  scaler = torch.cuda.amp.GradScaler()
-
+  #use_amp = False
+  #try AMP
+  #scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
   with tqdm.tqdm(total=len(data_loader)) as pbar:
 
@@ -35,19 +36,23 @@ def train(net, data_loader, optimizer, loss_function, device):
         inputs, targets = inputs.to(device), targets.to(device)
       # load data on GPU
       else:
-        inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
+        inputs, targets = inputs.to(device), targets.to(device)
+        model = model.to(device)
       
       optimizer.zero_grad(set_to_none=True) # reset the optimizer
 
-      with torch.cuda.amp.autocast():
+      with torch.autocast(device_type='cuda', dtype=torch.float16):
         outputs = net(inputs) # Forward pass
         loss = loss_function(outputs, targets) # Apply the loss
         
-      scaler.scale(loss).backward()
-      #loss.backward() # Backward pass
-      scaler.step(optimizer)
-      #optimizer.step()  # update parameters
-      scaler.update()
+      loss.backward()
+      optimizer.step()
+      optimizer.zero_grad(set_to_none=True)
+      # scaler.scale(loss).backward()
+      # scaler.step(optimizer)
+      # scaler.update()
+      # optimizer.zero_grad()
+
 
       samples += inputs.shape[0]
       cumulative_loss += loss.item()
@@ -63,6 +68,7 @@ def test(net, data_loader, loss_function, device='cuda:0'):
   cumulative_loss = 0.
   cumulative_accuracy = 0.
   net.eval() # Strictly needed if network contains layers which have different behaviours between train and test
+  
   with tqdm.tqdm(total=len(data_loader)) as pbar:  
     with torch.no_grad():
       for batch_idx, (inputs, targets) in enumerate(data_loader):
@@ -72,12 +78,15 @@ def test(net, data_loader, loss_function, device='cuda:0'):
           inputs, targets = inputs.to(device), targets.to(device)
         # load data on GPU
         else:
-          inputs, targets = inputs.type(dtype=torch.float16).to(device), targets.type(dtype=torch.LongTensor).to(device)
-        
+          inputs, targets = inputs.to(device), targets.to(device)
+          
 
-        with torch.cuda.amp.autocast():
-          outputs = net(inputs)
-          loss = loss_function(outputs, targets)
+        # with torch.cuda.amp.autocast():
+        #   outputs = net(inputs)
+        #   loss = loss_function(outputs, targets)
+        with torch.autocast(device_type='cuda', dtype=torch.float16):
+          outputs = net(inputs) # Forward pass
+          loss = loss_function(outputs, targets) # Apply the loss
 
         # Forward pass
         #outputs = net(inputs)
@@ -102,10 +111,11 @@ def trainer(
     momentum=0.9,
     epochs=2,
     model=None,
-    device="cuda:0"):
+    device="cuda:0",
+    early_stopping=False):
   
   
-
+  model = model.to(device)
   # defining the optimizer
   optimizer = get_optimizer(model, learning_rate, weight_decay, momentum)
   # defining the loss function
@@ -141,17 +151,18 @@ def trainer(
 
 
     ## Early stopping
-    if current_loss > last_loss:
-      trigger_times += 1
-      print("Trigger times: ", trigger_times)
+    if early_stopping:
+      if current_loss > last_loss:
+        trigger_times += 1
+        print("Trigger times: ", trigger_times)
 
-      if trigger_times >= patience:
-        print("Early stopping!\n Terminate training")
-        break
-    else:
-      trigger_times = 0
-    
-    last_loss = current_loss
+        if trigger_times >= patience:
+          print("Early stopping!\n Terminate training")
+          break
+      else:
+        trigger_times = 0
+      
+      last_loss = current_loss
 
 
   print('-----------------------------------------------------')

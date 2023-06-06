@@ -34,7 +34,7 @@ class Exemplar:
     def get_cost_info(self):
         return self.cost_info
     
-    def mutate(self, random=True ):
+    def mutate(self, random=True):
         
         ## Mutation_options = ["Change a block", "Change params of a block", "add a block"]
         probs = [2/6, 3/6, 1/6]
@@ -58,6 +58,7 @@ class Exemplar:
             new_network_encode[idx_block] = generate_random_params( block_type= self.network_encode[idx_block][0],
                                                                     input_channels= input_channels)
         else:   # add a block
+            input_channels = self.network_encode[-1][1]
             new_network_encode.append( 
                 generate_random_block(input_channels=input_channels)
             )

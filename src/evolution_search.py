@@ -16,6 +16,7 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
             population.append(exemplar)
         else:
             del exemplar
+            #exemplar.model = exemplar.model.cpu()
     
     return population
 

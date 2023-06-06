@@ -12,18 +12,18 @@ class NetworkDecoded(nn.Module):
         
         input_ch = input_channels_first
         
-        for block_type, output_ch, kernel_size,expansion_factor in network_encoding:
+        for block_type, output_ch, kernel_size,stride,expansion_factor in network_encoding:
             if block_type == "ConvNeXt":
                 self.layers.append(
                     BUILDING_BLOCKS[block_type](input_ch, expansion_factor)
                 )
             elif block_type == "InvertedResidual":
                 self.layers.append(
-                    BUILDING_BLOCKS[block_type](input_ch, output_ch, kernel_size, expansion_factor)
+                    BUILDING_BLOCKS[block_type](input_ch, output_ch, kernel_size,stride, expansion_factor)
                 )
             else:
                 self.layers.append(
-                    BUILDING_BLOCKS[block_type](input_ch,output_ch, kernel_size) )
+                    BUILDING_BLOCKS[block_type](input_ch,output_ch, kernel_size,stride) )
 
             input_ch = output_ch 
 
@@ -72,20 +72,20 @@ class NetworkDecoded(nn.Module):
 
 
 class ConvolutionalBlock(nn.Sequential):
-    def __init__(self, in_channels, out_channels, kernel_size):
+    def __init__(self, in_channels, out_channels, kernel_size, stride):
 
         super(ConvolutionalBlock, self).__init__(
-            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=1,padding=kernel_size // 2, bias=False),
+            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride,padding=kernel_size // 2, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
    
     
 class DepthwiseSeparableConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size):
+    def __init__(self, in_channels, out_channels, kernel_size, stride):
         super(DepthwiseSeparableConvBlock, self).__init__()
         self.depthwise = nn.Sequential(
-            nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size, stride=1,padding=kernel_size //2, groups=in_channels, bias=False),
+            nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size, stride=stride,padding=kernel_size //2, groups=in_channels, bias=False),
             nn.BatchNorm2d(in_channels),
             nn.ReLU(inplace=True)
         )
@@ -101,7 +101,7 @@ class DepthwiseSeparableConvBlock(nn.Module):
         return x
     
 class BottleneckResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size):
+    def __init__(self, in_channels, out_channels, kernel_size, stride):
         super(BottleneckResidualBlock, self).__init__()
         self.conv1x1_1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels // 4, kernel_size=1, stride=1, bias=False),
@@ -110,7 +110,7 @@ class BottleneckResidualBlock(nn.Module):
         )
 
         self.conv3x3 = nn.Sequential(
-            nn.Conv2d(out_channels // 4, out_channels // 4, kernel_size=kernel_size, stride=1,padding=kernel_size // 2, bias=False),
+            nn.Conv2d(out_channels // 4, out_channels // 4, kernel_size=kernel_size, stride=stride,padding=kernel_size // 2, bias=False),
             nn.BatchNorm2d(out_channels // 4),
             nn.ReLU(inplace=True)
         )
@@ -122,9 +122,9 @@ class BottleneckResidualBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
          # Utilizzato per aggiungere la shortcut connection solo se i canali di input e output sono diversi
-        if in_channels != out_channels:
+        if in_channels != out_channels or stride != 1:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
+                nn.Conv2d(in_channels, out_channels, kernel_size=1,stride=stride, bias=False),
                 nn.BatchNorm2d(out_channels)
             )
         else:
@@ -142,11 +142,11 @@ class BottleneckResidualBlock(nn.Module):
         return x
     
 class InvertedResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels,kernel_size, expansion_factor=4):
+    def __init__(self, in_channels, out_channels,kernel_size, stride, expansion_factor=4):
         super(InvertedResidualBlock, self).__init__()
         hidden_dim = int(in_channels * expansion_factor)
         self.use_res_connect = in_channels == out_channels
-        
+        self.stride = stride
 
         self.conv1x1_1 = nn.Sequential(
             nn.Conv2d(in_channels, hidden_dim, kernel_size=1, stride=1, bias=False),
@@ -154,7 +154,7 @@ class InvertedResidualBlock(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.depthwise = nn.Sequential(
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=kernel_size, stride=1, padding=kernel_size // 2, groups=hidden_dim, bias=False),
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=kernel_size, stride=stride, padding=kernel_size // 2, groups=hidden_dim, bias=False),
             nn.BatchNorm2d(hidden_dim),
             nn.ReLU(inplace=True)
         )
@@ -163,11 +163,15 @@ class InvertedResidualBlock(nn.Module):
             nn.BatchNorm2d(out_channels)
         )
         self.relu = nn.ReLU(inplace=True)
-
+        self.downsample = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride)
 
 
     def forward(self, x):
-        identity = x
+        
+        if self.stride != 1:
+            identity = self.downsample(x)
+        else:
+            identity = x
         
         x = self.conv1x1_1(x)
         x = self.depthwise(x)

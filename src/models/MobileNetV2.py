@@ -121,12 +121,12 @@ class MobileNetV2(nn.Module):
 
     
     # convert to half precision
-    self.half()
+    #self.half()
 
     # convert BatchNorm to float32
-    for layer in self.modules():
-      if isinstance(layer, nn.BatchNorm2d):
-        layer.float()
+    # for layer in self.modules():
+    #   if isinstance(layer, nn.BatchNorm2d):
+    #     layer.float()
 
   def _forward_impl(self, x):
         

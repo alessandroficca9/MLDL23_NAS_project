@@ -47,4 +47,5 @@ def isfeasible(exemplar, max_params: int, max_flops: int, inputs, device):
     if cost_info["FLOPS"] <= max_flops and cost_info["#Parameters"] <= max_params:
         return True
     else: 
+        del exemplar
         return False

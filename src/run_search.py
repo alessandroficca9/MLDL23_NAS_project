@@ -4,7 +4,7 @@ from random_search import search_random
 from evolution_search import search_evolution
 from models.resnet import ResNet
 from models.MobileNetV2 import MobileNetV2
-
+from metrics.metrics import get_params_flops
 
 def main():
     
@@ -43,6 +43,8 @@ def main():
                                        max_flops=max_flops,
                                        max_params=max_params)
         model = best_models[0].get_model()
+        if args.save:    
+            torch.save(model, 'model_ea.pth')
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
@@ -55,17 +57,26 @@ def main():
                                     inputs=inputs,
                                     device=device)
         model = best_models[0].get_model()
+        if args.save:    
+            torch.save(model, 'model_random.pth')
 
     elif args.algo == "our_cnn":
-        model = ResNet()
+        model = MobileNetV2()
+        params, flops = get_params_flops(model, inputs, device)
+        print(f"Manuall CNN: params = {params} flops = {flops}")
+        if args.save:    
+            torch.save(model, 'model_manual.pth')
+        
+        
 
-    print("best models ea")
-    if len(best_models) > 0:
-        for nn in best_models:
-            print(f"model: {nn.get_model()}")
-            print(f"info flops and params {nn.get_cost_info()}")
-            print(f"synflow score: {nn.get_metric_score('synflow')}")
-            print(f"naswot score: {nn.get_metric_score('naswot')}")
+    if args.algo != "our_cnn":
+        print("best models ea")
+        if len(best_models) > 0:
+            for nn in best_models:
+                print(f"model: {nn.get_model()}")
+                print(f"info flops and params {nn.get_cost_info()}")
+                print(f"synflow score: {nn.get_metric_score('synflow')}")
+                print(f"naswot score: {nn.get_metric_score('naswot')}")
 
 
     

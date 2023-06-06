@@ -35,6 +35,9 @@ def get_params_flops(model, inputs,device):
 
     flops = FlopCountAnalysis(model, input)
     flops.set_op_handle("aten::add_",None)
+    flops.set_op_handle("aten::add", None)
+    flops.set_op_handle("aten::hardtanh_",None)
+    
     return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):
@@ -61,15 +64,15 @@ def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.dev
         for h in hooks:
             h.remove()
 
-        full_code = torch.cat(codes, dim=1)
+        full_code = torch.cat(codes, dim=1).detach()
 
         # Fast Hamming distance matrix computation
         del codes, _
-        full_code_float = full_code.float()
-        k = full_code_float @ full_code_float.t()
+        full_code_float = full_code.float().detach()
+        k = full_code_float @ full_code_float.t().detach()
         del full_code_float
-        not_full_code_float = torch.logical_not(full_code).float()
-        k += not_full_code_float @ not_full_code_float.t()
+        not_full_code_float = torch.logical_not(full_code).float().detach()
+        k += not_full_code_float @ not_full_code_float.t().detach()
         del not_full_code_float
 
         return torch.slogdet(k).logabsdet.item()

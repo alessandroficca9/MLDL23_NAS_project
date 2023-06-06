@@ -15,7 +15,7 @@ parser.add_argument("--learning_rate", type=float, default=0.1)
 parser.add_argument("--momentum", type=float, default=0.9)
 parser.add_argument("--epochs", type=int, default=10)
 parser.add_argument("--weight_decay", type=float, default=0.000001)
-
+parser.add_argument("--use_subset",type=bool, default=False)
 
 args = parser.parse_args()
 model = torch.load(args.model)
@@ -32,14 +32,14 @@ momentum = args.momentum
 epochs = args.epochs
 weigth_decay = args.weight_decay
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
+use_subset = args.use_subset
 
 
 train_dataloader, val_dataloader, test_dataloader = get_data_loader(root_data,
                                                                         path_annotations_train,
                                                                         path_annotations_val,
                                                                         batch_size=batch_size,
-                                                                        use_subset=True)
+                                                                        use_subset=use_subset)
 
 #inputs = next(iter(train_dataloader))
 
@@ -52,6 +52,7 @@ MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(tra
                                                                                  epochs=epochs,
                                                                                  model= model,
                                                                                  device=device,
+                                                                                 early_stopping=False
                                                                                  )
     
 
