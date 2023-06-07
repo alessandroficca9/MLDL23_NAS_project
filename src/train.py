@@ -5,8 +5,8 @@ import torch.nn as nn
 from timm.scheduler import CosineLRScheduler
 
 
-def get_optimizer(net, lr,wd,momentum):
-  optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
+def get_optimizer(net, lr):
+  optimizer = torch.optim.SGD(net.parameters() ,lr=lr)
   #optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd)
   return optimizer 
 
@@ -117,11 +117,12 @@ def trainer(
   
   model = model.to(device)
   # defining the optimizer
-  optimizer = get_optimizer(model, learning_rate, weight_decay, momentum)
+  optimizer = get_optimizer(model, learning_rate)
   # defining the loss function
   loss_function = get_loss_function()
   # finaly training the model 
-  scheduler = CosineLRScheduler(optimizer=optimizer)
+  if weight_decay != 0:
+    scheduler = CosineLRScheduler(optimizer=optimizer)
 
   # In order to save the accuracy and loss we use a list to save them in each epoch 
   val_loss_list = []
@@ -141,7 +142,8 @@ def trainer(
     val_accuracy_list.append(val_accuracy)
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
-    scheduler.step()
+    if weight_decay != 0:
+      scheduler.step()
 
     current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))
