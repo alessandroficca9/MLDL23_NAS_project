@@ -2,8 +2,8 @@ from math import inf
 import torch
 import tqdm
 import torch.nn as nn
+from timm.scheduler import CosineLRScheduler
 
-from dataset import get_data_loader
 
 def get_optimizer(net, lr,wd,momentum):
   optimizer = torch.optim.SGD(net.parameters() ,lr=lr, weight_decay=wd,momentum=momentum)
@@ -121,7 +121,7 @@ def trainer(
   # defining the loss function
   loss_function = get_loss_function()
   # finaly training the model 
-
+  scheduler = CosineLRScheduler(optimizer=optimizer)
 
   # In order to save the accuracy and loss we use a list to save them in each epoch 
   val_loss_list = []
@@ -141,6 +141,7 @@ def trainer(
     val_accuracy_list.append(val_accuracy)
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
+    scheduler.step()
 
     current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))

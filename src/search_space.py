@@ -163,6 +163,7 @@ class InvertedResidualBlock(nn.Module):
             nn.BatchNorm2d(out_channels)
         )
         self.relu = nn.ReLU(inplace=True)
+        
         self.downsample = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride)
 
 
