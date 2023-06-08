@@ -35,13 +35,13 @@ class Exemplar:
     def mutate(self, random=True):
         
         ## Mutation_options = ["Change a block", "Change params of a block", "add a block"]
-        probs = [0/6, 0/6, 6/6]
+        probs = [0.4, 0.4, 0.2]
         chosen = np.random.multinomial(n=1, pvals=probs)
         chosen = np.argmax(chosen)
         
         # choose random idx of block
         if random:
-            idx_block = np.random.randint(0, len(self.network_encode))
+            idx_block = np.random.randint(0, high=len(self.network_encode))
             if idx_block == 0:
                 input_channels = 3
             else:
@@ -50,11 +50,10 @@ class Exemplar:
         new_network_encode = deepcopy(self.network_encode)
 
         if chosen == 0:     # Change a block    
-            new_network_encode[idx_block] = generate_random_block(input_channels=input_channels)  
+            new_network_encode[idx_block] = generate_random_block()  
 
         elif chosen == 1:   #change params of a block
-            new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0],
-                                                                    input_channels= input_channels)
+            new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0])
         else:   # add a block
             input_channels = self.network_encode[-1][1]
             new_network_encode.append( 

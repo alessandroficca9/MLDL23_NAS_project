@@ -15,7 +15,7 @@ class NetworkDecoded(nn.Module):
         for block_type, output_ch, kernel_size,stride,expansion_factor in network_encoding:
             if block_type == "ConvNeXt":
                 self.layers.append(
-                    BUILDING_BLOCKS[block_type](input_ch, expansion_factor)
+                    BUILDING_BLOCKS[block_type](input_ch,output_ch, expansion_factor)
                 )
             elif block_type == "InvertedResidual":
                 self.layers.append(
@@ -24,7 +24,7 @@ class NetworkDecoded(nn.Module):
             else:
                 self.layers.append(
                     BUILDING_BLOCKS[block_type](input_ch,output_ch, kernel_size,stride) )
-
+  
             input_ch = output_ch 
 
 
@@ -189,7 +189,7 @@ class InvertedResidualBlock(nn.Module):
 ## ConvNeXt Block 
 class ConvNeXt(nn.Module):
 
-    def __init__(self, inp_dim, expansion_factor):
+    def __init__(self, inp_dim,output_dim, expansion_factor):
         super(ConvNeXt, self).__init__()
 
         self.dwConv = nn.Sequential(
@@ -203,7 +203,15 @@ class ConvNeXt(nn.Module):
             nn.ReLU()
         )
 
-        self.pwConv2 = nn.Conv2d(expansion_factor*inp_dim, inp_dim,kernel_size=1, stride=1)
+        self.pwConv2 = nn.Conv2d(expansion_factor*inp_dim,output_dim,kernel_size=1, stride=1)
+
+        if inp_dim != output_dim:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(inp_dim, output_dim, kernel_size=1, bias=False),
+                nn.BatchNorm2d(output_dim)
+            )
+        else:
+            self.shortcut = nn.Identity()
 
     def forward(self, x):
         input = x
@@ -212,7 +220,7 @@ class ConvNeXt(nn.Module):
         x = self.pwConv(x)
         x = self.pwConv2(x)
 
-        x += input
+        x += self.shortcut(input)
         return x 
     
 BUILDING_BLOCKS = {

@@ -52,6 +52,6 @@ def encode_model(block_list):
     
     block_str = ""
     for block in block_list:
-        block_str += f"({block[0]}, {block[1]});"
+        block_str += f"({block[0]}, {block[1]}, {block[2]}, {block[3]}, {block[4]});"
     
     return block_str

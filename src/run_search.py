@@ -15,10 +15,10 @@ def main():
 
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='ea_search', choices=("random_search", "ea_search","our_cnn"))
+    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","our_cnn"))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
-    parser.add_argument('--n_random', type=int, default=10)
+    parser.add_argument('--n_random', type=int, default=20)
     parser.add_argument('--initial_pop', type=int, default=5)
     parser.add_argument('--generation_ea', type=int, default=30)
     parser.add_argument("--save", type=bool, default=True)

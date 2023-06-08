@@ -1,5 +1,5 @@
 
-import random
+from numpy import random
 from metrics.metrics import *
 import torch.nn as nn
 
@@ -41,37 +41,40 @@ strides = [1,2]
 
 def generate_random_network_encode(input_channels_first, num_max_blocks):
 
-    input_channels = input_channels_first
+    #input_channels = input_channels_first
     blocks = []
 
     for _ in range(random.randint(1,num_max_blocks)):
 
-        block = generate_random_block(input_channels)
+        block = generate_random_block()
         blocks.append(block)
-        input_channels = block[1]   # next input channels = current output channels
+        #input_channels = block[1]   # next input channels = current output channels
        
     return blocks    
         
-def generate_random_block(input_channels):
+def generate_random_block():
 
     block_type = random.choice(list(BUILDING_BLOCKS.keys()))
-    block = generate_random_params(block_type, input_channels)
+    block = generate_random_params(block_type)
     return block 
 
 
-def generate_random_params(block_type, input_channels):
+def generate_random_params(block_type):
      
     kernel_size = 0
     stride = 0
     expansion_factor = 0
 
-    if block_type == "ConvNeXt":
-        output_channels = input_channels
-    else:
-        output_channels = random.choice(channels)
-        kernel_size = random.choice(kernel_sizes)
-        stride = random.choice(strides)
-    
+    # if block_type == "ConvNeXt":
+    #     output_channels = input_channels
+    # else:
+    #     output_channels = random.choice(channels)
+    #     kernel_size = random.choice(kernel_sizes)
+    #     stride = random.choice(strides, p=[0.75, 0.25])
+
+    output_channels = random.choice(channels)
+    kernel_size = random.choice(kernel_sizes)
+    stride = random.choice(strides, p=[0.7, 0.3])
     if block_type == "InvertedResidual" or block_type == "ConvNeXt":
         expansion_factor = random.choice(expansion_factors)
         
