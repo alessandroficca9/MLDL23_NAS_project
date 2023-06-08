@@ -164,7 +164,8 @@ class InvertedResidualBlock(nn.Module):
         )
         self.relu = nn.ReLU(inplace=True)
         
-        self.downsample = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride)
+        if self.stride != 1:
+            self.downsample = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride)
 
 
     def forward(self, x):

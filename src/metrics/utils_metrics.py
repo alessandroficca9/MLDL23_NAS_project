@@ -22,6 +22,11 @@ def compute_metrics(exemplar, inputs, device):
         params, flops = get_params_flops(model, inputs,device)
         exemplar.metrics["FLOPS"] = flops
         exemplar.metrics["#Parameters"] = params
+    
+    del model
+    exemplar.model = None
+    #del exemplar.model 
+
     return 
 
 

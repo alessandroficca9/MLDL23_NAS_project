@@ -6,8 +6,12 @@ from models.resnet import ResNet
 from models.MobileNetV2 import MobileNetV2
 from metrics.metrics import get_params_flops
 from decimal import Decimal
+import random
 
 def main():
+    
+
+    random.seed(0)
     
     parser = ArgumentParser()
     
@@ -15,8 +19,8 @@ def main():
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--n_random', type=int, default=10)
-    parser.add_argument('--initial_pop', type=int, default=25)
-    parser.add_argument('--generation_ea', type=int, default=100)
+    parser.add_argument('--initial_pop', type=int, default=5)
+    parser.add_argument('--generation_ea', type=int, default=3)
     parser.add_argument("--save", type=bool, default=True)
 
 
@@ -82,9 +86,6 @@ def main():
 
 
     
-
-    if args.save:    
-            torch.save(model, 'model.pth')
 
     
     return 

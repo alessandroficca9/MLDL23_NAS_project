@@ -37,7 +37,9 @@ def get_params_flops(model, inputs,device):
     flops.set_op_handle("aten::add_",None)
     flops.set_op_handle("aten::add", None)
     flops.set_op_handle("aten::hardtanh_",None)
+    flops.uncalled_modules_warnings(False)
     
+    del input
     return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):
@@ -153,6 +155,8 @@ def compute_synflow_per_weight(net, inputs, device, mode='param', remap: Union[T
             del layer._old_forward
 
     net.float()
+    del inputs
+    del net
     return sum_arr(grads_abs)
 
 # Try considering bn too.

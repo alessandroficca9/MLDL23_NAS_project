@@ -24,6 +24,7 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
 
 def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs, device, max_flops, max_params):
 
+    print("Start Evolutionary search ...")
     print("Population initialization ...")
     population = population_init(population_size, num_max_blocks,max_params, max_flops, inputs, device)
     compute_metrics_population(population, inputs, device)

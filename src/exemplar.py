@@ -42,7 +42,7 @@ class Exemplar:
         
         # choose random idx of block
         if random:
-            idx_block = np.random.randint(0, len(self.network_encode) )
+            idx_block = np.random.randint(0, len(self.network_encode))
             if idx_block == 0:
                 input_channels = 3
             else:
@@ -54,8 +54,9 @@ class Exemplar:
             new_network_encode[idx_block] = generate_random_block(input_channels=input_channels)  
 
         elif chosen == 1:   #change params of a block
-            new_network_encode[idx_block] = generate_random_params( block_type= self.network_encode[idx_block][0],
-                                                                    input_channels= input_channels)
+            if self.network_encode[idx_block][0] != 'ConvNeXt':
+                new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0],
+                                                                        input_channels= input_channels)
         else:   # add a block
             input_channels = self.network_encode[-1][1]
             new_network_encode.append( 
@@ -68,6 +69,8 @@ class Exemplar:
         self.age = age 
     
     
+        
+        
 
 
     
