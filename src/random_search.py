@@ -12,7 +12,7 @@ def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_c
     print("Start random search ...")
     population = []
     for i in range(num_iterations):
-        print("Iteration: {i}/{num_iterations}")
+        print(f"Iteration: {i}/{num_iterations}")
         
         network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks)
         

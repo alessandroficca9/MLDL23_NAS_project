@@ -14,7 +14,9 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
         exemplar = Exemplar(network_encode, age=0)
         if isfeasible(exemplar,max_params, max_flops, inputs, device):
             population.append(exemplar)
+            print(f"Population size: {len(population)}/{N}")
         else:
+
             del exemplar
             #exemplar.model = exemplar.model.cpu()
     
@@ -83,6 +85,7 @@ def crossover(parent_1, parent_2):
     #2. decide a crossover point and join the different blocks
     network_crossover = []
     min_lenghts = min(len(parent_1.network_encode), len(parent_2.network_encode))
+
 
     if random.random() < 0.5:
 

@@ -18,7 +18,6 @@ class Exemplar:
         self.age = 0
 
     def get_metric_score(self, metric):
-        
         return self.metrics[metric]
 
     def get_model(self):
@@ -36,7 +35,7 @@ class Exemplar:
     def mutate(self, random=True):
         
         ## Mutation_options = ["Change a block", "Change params of a block", "add a block"]
-        probs = [2/6, 3/6, 1/6]
+        probs = [0/6, 0/6, 6/6]
         chosen = np.random.multinomial(n=1, pvals=probs)
         chosen = np.argmax(chosen)
         
@@ -54,9 +53,8 @@ class Exemplar:
             new_network_encode[idx_block] = generate_random_block(input_channels=input_channels)  
 
         elif chosen == 1:   #change params of a block
-            if self.network_encode[idx_block][0] != 'ConvNeXt':
-                new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0],
-                                                                        input_channels= input_channels)
+            new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0],
+                                                                    input_channels= input_channels)
         else:   # add a block
             input_channels = self.network_encode[-1][1]
             new_network_encode.append( 

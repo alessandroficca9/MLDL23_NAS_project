@@ -12,15 +12,15 @@ def main():
     
 
     random.seed(0)
-    
+
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","our_cnn"))
+    parser.add_argument("--algo", type=str, default='ea_search', choices=("random_search", "ea_search","our_cnn"))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--n_random', type=int, default=10)
     parser.add_argument('--initial_pop', type=int, default=5)
-    parser.add_argument('--generation_ea', type=int, default=3)
+    parser.add_argument('--generation_ea', type=int, default=30)
     parser.add_argument("--save", type=bool, default=True)
 
 
@@ -40,7 +40,7 @@ def main():
         population_size = args.initial_pop
         num_generations = args.generation_ea
         best_models = search_evolution(population_size=population_size,
-                                       num_max_blocks=7,
+                                       num_max_blocks=5,
                                        max_step=num_generations,
                                        metrics=['synflow', 'naswot', '#Parameters', 'FLOPS'],
                                        inputs=inputs,
@@ -53,7 +53,7 @@ def main():
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
-                                    num_max_blocks=7,
+                                    num_max_blocks=5,
                                     max_params=max_params,
                                     max_flops=max_flops,
                                     input_channels_first=3,

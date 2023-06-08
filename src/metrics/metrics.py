@@ -39,6 +39,7 @@ def get_params_flops(model, inputs,device):
     flops.set_op_handle("aten::hardtanh_",None)
     flops.uncalled_modules_warnings(False)
     
+    input = input.detach()
     del input
     return model_params, flops.total()
 

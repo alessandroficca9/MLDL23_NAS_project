@@ -23,6 +23,7 @@ def compute_metrics(exemplar, inputs, device):
         exemplar.metrics["FLOPS"] = flops
         exemplar.metrics["#Parameters"] = params
     
+    model.to("cpu")
     del model
     exemplar.model = None
     #del exemplar.model 
