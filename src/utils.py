@@ -15,10 +15,17 @@ def get_rank_based_on_metrics(exemplars, metrics):
     scores = {exemplar : 0 for exemplar in exemplars}
 
     for metric in metrics:
-        rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric), reverse=True)
 
-        for i,exemplar in enumerate(rank_metric):
-            scores[exemplar] += i
+        if metric == "#Parameters" or metric == "FLOPS":
+            rank_metric = sorted(exemplars, key=lambda x: x.get_metric_score(metric))
+
+            for i,exemplar in enumerate(rank_metric):
+                scores[exemplar] += 1
+        else:
+            rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric), reverse=True)
+
+            for i,exemplar in enumerate(rank_metric):
+                scores[exemplar] += i
 
     final_rank = dict(sorted(scores.items(), key=lambda x: x[1])).keys()
 

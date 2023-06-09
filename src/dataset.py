@@ -26,8 +26,8 @@ def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch
     annFile=path_annotations_val
   )
 
-  print(len(full_training_data))
-  print(full_training_data)
+  # print(len(full_training_data))
+  # print(full_training_data)
   
 
 

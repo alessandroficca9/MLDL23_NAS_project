@@ -227,7 +227,7 @@ BUILDING_BLOCKS = {
     "ConvBNReLU" : ConvolutionalBlock,
     "InvertedResidual" : InvertedResidualBlock,
     "DWConv" : DepthwiseSeparableConvBlock,
-    "BottleneckResidual" : BottleneckResidualBlock,
+    #"BottleneckResidual" : BottleneckResidualBlock,
     "ConvNeXt" : ConvNeXt,
     #"AdaptiveAvgPool2x2" : nn.AdaptiveAvgPool2d,
     #"AdaptiveMaxPool2x2" : nn.MaxPool2d,

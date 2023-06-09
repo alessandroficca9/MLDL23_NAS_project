@@ -34,31 +34,27 @@ class Exemplar:
     
     def mutate(self, random=True):
         
-        ## Mutation_options = ["Change a block", "Change params of a block", "add a block"]
-        probs = [0.4, 0.4, 0.2]
+        ## Mutation_options = ["Change a block", "Cut a block", "add a block"]
+        probs = [0.4, 0.2, 0.4]
         chosen = np.random.multinomial(n=1, pvals=probs)
         chosen = np.argmax(chosen)
         
         # choose random idx of block
         if random:
             idx_block = np.random.randint(0, high=len(self.network_encode))
-            if idx_block == 0:
-                input_channels = 3
-            else:
-                input_channels = self.network_encode[idx_block-1][1]
-
+            
         new_network_encode = deepcopy(self.network_encode)
 
-        if chosen == 0:     # Change a block    
-            new_network_encode[idx_block] = generate_random_block()  
-
-        elif chosen == 1:   #change params of a block
-            new_network_encode[idx_block] = generate_random_params(block_type= self.network_encode[idx_block][0])
-        else:   # add a block
-            input_channels = self.network_encode[-1][1]
-            new_network_encode.append( 
-                generate_random_block(input_channels=input_channels)
-            )
+        # Change a block
+        if chosen == 0:       
+            new_network_encode[idx_block] = generate_random_block()
+        # cut a block
+        elif chosen == 1:
+            for i in range(idx_block, len(self.network_encode)-1):
+                new_network_encode[i] = new_network_encode[i+1]
+        # add a block
+        else:
+            new_network_encode.append( generate_random_block() )
 
         return Exemplar(new_network_encode, age=0)
     

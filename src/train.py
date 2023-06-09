@@ -37,7 +37,7 @@ def train(net, data_loader, optimizer, loss_function, device):
       # load data on GPU
       else:
         inputs, targets = inputs.to(device), targets.to(device)
-        model = model.to(device)
+       
       
       optimizer.zero_grad(set_to_none=True) # reset the optimizer
 
@@ -122,7 +122,7 @@ def trainer(
   loss_function = get_loss_function()
   # finaly training the model 
   if weight_decay != 0:
-    scheduler = CosineLRScheduler(optimizer=optimizer)
+    scheduler = CosineLRScheduler(optimizer=optimizer, t_initial=epochs//2)
 
   # In order to save the accuracy and loss we use a list to save them in each epoch 
   val_loss_list = []
@@ -143,7 +143,7 @@ def trainer(
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
     if weight_decay != 0:
-      scheduler.step()
+      scheduler.step(e+1)
 
     current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))

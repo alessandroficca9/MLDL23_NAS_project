@@ -15,12 +15,15 @@ def main():
 
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","our_cnn"))
+    parser.add_argument("--algo", type=str, default='ea_search', choices=("random_search", "ea_search","our_cnn"))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
+    parser.add_argument('--metrics', type=list, default=['synflow', 'naswot','FLOPS','#Parameters'], 
+                        choices=( ["synflow", "naswot"],["synflow", "naswot", "FLOPS", "#Parameters"]))
     parser.add_argument('--n_random', type=int, default=20)
     parser.add_argument('--initial_pop', type=int, default=5)
     parser.add_argument('--generation_ea', type=int, default=30)
+    parser.add_argument('--max_blocks', type=int, default=7)
     parser.add_argument("--save", type=bool, default=True)
 
 
@@ -35,14 +38,16 @@ def main():
     args = parser.parse_args()
     max_flops = args.max_flops
     max_params = args.max_params
+    max_blocks = args.max_blocks
+    metrics = args.metrics
     
     if args.algo == "ea_search":
         population_size = args.initial_pop
         num_generations = args.generation_ea
         best_models = search_evolution(population_size=population_size,
-                                       num_max_blocks=5,
+                                       num_max_blocks=max_blocks,
                                        max_step=num_generations,
-                                       metrics=['synflow', 'naswot', '#Parameters', 'FLOPS'],
+                                       metrics=metrics,
                                        inputs=inputs,
                                        device=device,
                                        max_flops=max_flops,
@@ -53,12 +58,12 @@ def main():
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
-                                    num_max_blocks=5,
+                                    num_max_blocks=max_blocks,
                                     max_params=max_params,
                                     max_flops=max_flops,
                                     input_channels_first=3,
                                     k=3,
-                                    metrics=['synflow','naswot', '#Parameters', 'FLOPS'],
+                                    metrics=metrics,
                                     inputs=inputs,
                                     device=device)
         model = best_models[0].get_model()
