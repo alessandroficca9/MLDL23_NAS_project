@@ -6,7 +6,7 @@ import pyvww
 from torchvision import transforms as T
 from timm.data import create_transform
 
-def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch_size, test_batch_size=256,resolution_size=224,use_subset=False):
+def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch_size, test_batch_size=256,resolution_size=224,use_subset=False, num_batches=100):
 
   # prepare data trasformations
   # Check resize try other values
@@ -32,7 +32,7 @@ def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch
 
 
   if use_subset:
-    num_samples = 20*batch_size
+    num_samples = num_batches*batch_size
     subset_training_data = []
     for i in range(num_samples):
       image,label = full_training_data[random.randint(0, len(full_training_data))]
