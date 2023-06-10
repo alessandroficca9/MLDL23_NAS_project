@@ -2,8 +2,9 @@
 from exemplar import Exemplar
 from random_search import generate_random_network_encode, get_rank_based_on_metrics, get_top_k_models
 import random
-from metrics.utils_metrics import compute_metrics_population, isfeasible, compute_metrics
+from metrics.utils_metrics import  isfeasible, compute_metrics
 from ea_utils import update_history, prune_population, clean_history
+from alive_progress import alive_bar
 
 def population_init(N, num_max_blocks, max_params, max_flops, inputs, device, fixed_size):
 
@@ -40,25 +41,27 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
     #                               max_params=max_params, max_flops=max_flops)
 
     print("Start evolution ...")
-    for step in range(max_step):
-        
-        print(f"Generation {step} ...")
-        sampled = random.sample(population,k=5)
-        sampled = get_rank_based_on_metrics(sampled, metrics,weight_params_flops=weight_params_flops)
+    with alive_bar(max_step) as bar:
+        for step in range(max_step):
+            
+            #print(f"Generation {step} ...")
+            sampled = random.sample(population,k=5)
+            sampled = get_rank_based_on_metrics(sampled, metrics,weight_params_flops=weight_params_flops)
 
-        parents = get_top_k_models(sampled, k=2)
+            parents = get_top_k_models(sampled, k=2)
 
-        # add the children
-        for child in mutation(parents, cross=True, age=step+1, max_params=max_params, max_flops=max_flops, inputs=inputs, device=device):
-            population.append(child)
-            compute_metrics(child, inputs, device)
+            # add the children
+            for child in mutation(parents, cross=True, age=step+1, max_params=max_params, max_flops=max_flops, inputs=inputs, device=device):
+                population.append(child)
+                compute_metrics(child, inputs, device)
 
-        #compute_metrics_population(population, inputs, device)
-        history = update_history(population, history)
+            #compute_metrics_population(population, inputs, device)
+            history = update_history(population, history)
 
-        population = prune_population(population, inputs, device, kill_oldest=True, top_N=population_size, metrics=metrics, 
-                                      max_params=max_params, max_flops=max_flops)
-        
+            population = prune_population(population, inputs, device, kill_oldest=True, top_N=population_size, metrics=metrics, 
+                                        max_params=max_params, max_flops=max_flops)
+            bar()
+            
     print("End evolution ...")
     history = clean_history(history, inputs, device, max_params=max_params, max_flops=max_flops)
     final_models = get_rank_based_on_metrics(history.values(), metrics, weight_params_flops=weight_params_flops)

@@ -4,7 +4,7 @@ import math
 from exemplar import Exemplar
 from utils import generate_random_network_encode, get_rank_based_on_metrics, get_top_k_models
 from metrics.utils_metrics import  isfeasible, compute_metrics
-
+from alive_progress import alive_bar
 
 
 def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_channels_first, \
@@ -12,19 +12,22 @@ def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_c
 
     print("Start random search ...")
     population = []
-    for i in range(num_iterations):
-        print(f"Iteration: {i}/{num_iterations}")
-        
-        network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
-        
-        exemplar = Exemplar(network_encoded)
 
-        compute_metrics(exemplar, inputs, device)
+    with alive_bar(num_iterations) as bar:
+        for i in range(num_iterations):
+            #print(f"Iteration: {i}/{num_iterations}")
+            
+            network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
+            
+            exemplar = Exemplar(network_encoded)
 
-        if isfeasible(exemplar, max_params=max_params, max_flops=max_flops, inputs=inputs, device=device):
-            population.append(exemplar)
-        else:
-            del exemplar 
+            compute_metrics(exemplar, inputs, device)
+
+            if isfeasible(exemplar, max_params=max_params, max_flops=max_flops, inputs=inputs, device=device):
+                population.append(exemplar)
+            else:
+                del exemplar
+            bar() 
     
     print("Finish random search.")
     print(f"Remaining {len(population)} that satisfy constraints")

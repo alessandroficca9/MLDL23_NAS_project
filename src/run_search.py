@@ -65,9 +65,12 @@ def main():
                                        max_params=max_params,
                                        weight_params_flops=1,
                                        fixed_size=fixed_size)
+        
         model = best_models[0].get_model()
+        
         if args.save:    
             torch.save(model, 'model_ea.pth')
+    
     elif args.algo == "random_search":
         num_models = args.n_random
         best_models = search_random(num_iterations=num_models,
@@ -81,7 +84,9 @@ def main():
                                     inputs=inputs,
                                     device=device,
                                     fixed_size=fixed_size)
+        
         model = best_models[0].get_model()
+        
         if args.save:    
             torch.save(model, 'model_random.pth')
 
