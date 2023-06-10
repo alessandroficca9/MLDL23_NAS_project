@@ -5,15 +5,16 @@ import random
 from metrics.utils_metrics import compute_metrics_population, isfeasible, compute_metrics
 from ea_utils import update_history, prune_population, clean_history
 
-def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
+def population_init(N, num_max_blocks, max_params, max_flops, inputs, device, fixed_size):
 
     population = []
 
     while len(population) < N:
-        network_encode = generate_random_network_encode(input_channels_first=3, num_max_blocks=num_max_blocks)
+        network_encode = generate_random_network_encode(input_channels_first=3, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
         exemplar = Exemplar(network_encode, age=0)
         if isfeasible(exemplar,max_params, max_flops, inputs, device):
             population.append(exemplar)
+            compute_metrics(exemplar=exemplar, inputs=inputs, device=device)
             print(f"Population size: {len(population)}/{N}")
         else:
 
@@ -24,12 +25,12 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device):
 
 
 
-def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs, device, max_flops, max_params):
+def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs, device, max_flops, max_params, weight_params_flops=1,fixed_size=False):
 
     print("Start Evolutionary search ...")
     print("Population initialization ...")
-    population = population_init(population_size, num_max_blocks,max_params, max_flops, inputs, device)
-    compute_metrics_population(population, inputs, device)
+    population = population_init(population_size, num_max_blocks,max_params, max_flops, inputs, device, fixed_size)
+
     #compute_metrics_population(population, inputs, device)
     history = {}
     history = update_history(population, history)
@@ -43,7 +44,7 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
         
         print(f"Generation {step} ...")
         sampled = random.sample(population,k=5)
-        sampled = get_rank_based_on_metrics(sampled, metrics)
+        sampled = get_rank_based_on_metrics(sampled, metrics,weight_params_flops=weight_params_flops)
 
         parents = get_top_k_models(sampled, k=2)
 
@@ -60,11 +61,11 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
         
     print("End evolution ...")
     history = clean_history(history, inputs, device, max_params=max_params, max_flops=max_flops)
-    final_models = get_rank_based_on_metrics(history.values(), metrics)
+    final_models = get_rank_based_on_metrics(history.values(), metrics, weight_params_flops=weight_params_flops)
     best_models = get_top_k_models(final_models, k=3)
+
     return best_models
 
-### complete
 
 def mutation(parents, cross, age, max_params, max_flops, inputs, device):
 
@@ -100,19 +101,14 @@ def crossover(parent_1, parent_2):
     network_crossover = []
     min_lenghts = min(len(parent_1.network_encode), len(parent_2.network_encode))
 
-
     if random.random() < 0.5:
-
         for i in range(min_lenghts):
             block = random.choice( (parent_1.network_encode[i], parent_2.network_encode[i]))
             network_crossover.append(block)
-
     else:
-
         crossover_point = random.randint(0, min_lenghts-1)
         network_crossover = parent_1.network_encode[:crossover_point] + parent_2.network_encode[crossover_point:]
-        
-    
+            
     return Exemplar(network_encode=network_crossover)
 
 

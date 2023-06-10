@@ -11,6 +11,7 @@ parser.add_argument("--root_data", type=str, default="COCOdataset/all2017")
 parser.add_argument("--ann_train", type=str, default="visualwakewords\instances_train.json")
 parser.add_argument("--ann_val", type=str, default="visualwakewords\instances_val.json")
 parser.add_argument("--batch_size", type=int, default=64)
+parser.add_argument("--resolution_size", type=int, default=224, choices=(96, 128, 160, 192, 224) )
 parser.add_argument("--learning_rate", type=float, default=0.01)
 parser.add_argument("--momentum", type=float, default=0.9)
 parser.add_argument("--epochs", type=int, default=10)
@@ -27,6 +28,7 @@ path_annotations_val = args.ann_val
 
 # batch size = 64, 96, 128 (possible error CUDA out of memory)
 batch_size = args.batch_size
+resolution_size = args.resolution_size
 learning_rate = args.learning_rate
 momentum = args.momentum
 epochs = args.epochs
@@ -36,23 +38,24 @@ use_subset = args.use_subset
 
 
 train_dataloader, val_dataloader, test_dataloader = get_data_loader(root_data,
-                                                                        path_annotations_train,
-                                                                        path_annotations_val,
-                                                                        batch_size=batch_size,
-                                                                        use_subset=use_subset)
+                                                                    path_annotations_train,
+                                                                    path_annotations_val,
+                                                                    batch_size=batch_size,
+                                                                    resolution_size=resolution_size,
+                                                                    use_subset=use_subset)
 
 #inputs = next(iter(train_dataloader))
 
-MV2_val_loss, MV2_val_accuracy, MV2_train_loss, MV2_train_accuracy = trainer(train_dataloader,
-                                                                                 val_dataloader,
-                                                                                 test_dataloader,
-                                                                                 learning_rate=learning_rate,
-                                                                                 weight_decay=weigth_decay,
-                                                                                 momentum=momentum,
-                                                                                 epochs=epochs,
-                                                                                 model= model,
-                                                                                 device=device,
-                                                                                 early_stopping=False
-                                                                                 )
+val_loss, val_accuracy, train_loss, train_accuracy = trainer(train_dataloader,
+                                                            val_dataloader,
+                                                            test_dataloader,
+                                                            learning_rate=learning_rate,
+                                                            weight_decay=weigth_decay,
+                                                            momentum=momentum,
+                                                            epochs=epochs,
+                                                            model= model,
+                                                            device=device,
+                                                            early_stopping=False)
+                                     
     
 

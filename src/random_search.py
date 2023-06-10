@@ -3,18 +3,19 @@ import random
 import math 
 from exemplar import Exemplar
 from utils import generate_random_network_encode, get_rank_based_on_metrics, get_top_k_models
-from metrics.utils_metrics import compute_metrics_population, isfeasible, compute_metrics
+from metrics.utils_metrics import  isfeasible, compute_metrics
 
 
 
-def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_channels_first, k, metrics, inputs, device):
+def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_channels_first, \
+                   k, metrics,weigth_params_flops, inputs, device, fixed_size=False):
 
     print("Start random search ...")
     population = []
     for i in range(num_iterations):
         print(f"Iteration: {i}/{num_iterations}")
         
-        network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks)
+        network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
         
         exemplar = Exemplar(network_encoded)
 
@@ -27,7 +28,7 @@ def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_c
     
     print("Finish random search.")
     print(f"Remaining {len(population)} that satisfy constraints")
-    population_rank = get_rank_based_on_metrics(population, metrics)
+    population_rank = get_rank_based_on_metrics(population, metrics,weight_params_flops=weigth_params_flops)
     top_k_models = get_top_k_models(population_rank, k)
 
     # networks_encoded = [ generate_random_network_encode(input_channels_first, num_max_blocks) for i in range(num_iterations)]

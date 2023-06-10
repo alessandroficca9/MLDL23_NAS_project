@@ -5,15 +5,18 @@ import torch
 
 def compute_metrics(exemplar, inputs, device):
 
-    if not inputs.is_cuda:
-        inputs.to(device)
-
-    model = exemplar.get_model()
-
-    if not next(model.parameters()).is_cuda:
-        model.to(device)
-
+    
     if exemplar.metrics == None:
+
+        if not inputs.is_cuda:
+            inputs.to(device)
+
+        model = exemplar.get_model()
+
+        if not next(model.parameters()).is_cuda:
+            model.to(device)
+
+
         exemplar.metrics = {}
         exemplar.metrics["synflow"] = compute_synflow_per_weight(net=model, inputs=inputs, device=device)
         # inputs is batch dataloader -> input[0] list of all tensors without labels
@@ -22,11 +25,13 @@ def compute_metrics(exemplar, inputs, device):
         params, flops = get_params_flops(model, inputs,device)
         exemplar.metrics["FLOPS"] = flops
         exemplar.metrics["#Parameters"] = params
-    
-    model.to("cpu")
-    del model
-    exemplar.model = None
-    #del exemplar.model 
+
+        inputs.detach()
+        
+        model.to("cpu")
+        del model
+        exemplar.model = None
+     
 
     return 
 
