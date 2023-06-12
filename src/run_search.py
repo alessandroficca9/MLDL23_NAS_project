@@ -67,8 +67,8 @@ def main():
                                        weight_params_flops=1,
                                        fixed_size=fixed_size)
         
-        model = get_top_k_models(best_models,1)
-        model = model.get_model()
+        best_exemplar = get_top_k_models(best_models,1)
+        model = best_exemplar.get_model()
         
         if args.save:    
             torch.save(model, 'model_ea.pth')
@@ -87,8 +87,8 @@ def main():
                                     device=device,
                                     fixed_size=fixed_size)
         
-        model = get_top_k_models(best_models,1)
-        model = model.get_model()
+        best_exemplar = get_top_k_models(best_models,1)
+        model = best_exemplar.get_model()
         
         if args.save:    
             torch.save(model, 'model_random.pth')
@@ -101,16 +101,14 @@ def main():
             torch.save(model, 'model_manual.pth')
         
         
+    #print best model
+    print("Best exemplar obtained ---")
+    print(f"Model: {model}")
+    print(f"#Parameters: {best_exemplar.get_cost_info()[0]}  FLOPS: {best_exemplar.get_cost_info()[1]}")
+    print(f"Synflow score: {best_exemplar.get_metric_score('synflow')}")
+    print(f"NASWOT score: {best_exemplar.get_metric_score('naswot')}")
 
-    if args.algo != "our_cnn":
-        print("best models ea")
-        if len(best_models) > 0:
-            for nn in best_models:
-                print(f"model: {nn.get_model()}")
-                params, flops = nn.get_cost_info()
-                print(f"info params = {Decimal(params)} and flops = {Decimal(flops)}")
-                print(f"synflow score: {nn.get_metric_score('synflow')}")
-                print(f"naswot score: {nn.get_metric_score('naswot')}")
+    
 
 
     plot_metrics(best_models)

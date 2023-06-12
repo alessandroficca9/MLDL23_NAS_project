@@ -104,8 +104,8 @@ def generate_random_params(block_type):
 
 def plot_metrics(exemplars):
 
-    synflow_socres = [exemplar.metrics["synflow"] for exemplar in exemplars]
-    naswot_scores = [exemplar.metrics["naswot"] for exemplar in exemplars]
+    synflow_socres = [exemplar.get_metric_score("synflow") for exemplar in exemplars]
+    naswot_scores = [exemplar.get_metric_score("naswot") for exemplar in exemplars]
 
     fig, ax = plt.subplots()
     ax.plot(naswot_scores, synflow_socres)
@@ -113,5 +113,5 @@ def plot_metrics(exemplars):
     ax.set_xlabel("NASWOT score")
     ax.set_ylabel("Synflow score")
     plt.show()
-    
+
     return 
