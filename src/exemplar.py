@@ -13,7 +13,8 @@ class Exemplar:
 
         self.network_encode = network_encode
         self.metrics = None
-        #self.cost_info = None
+        self.params = None
+        self.flops = None
         self.model = None 
         self.age = 0
 
@@ -28,9 +29,7 @@ class Exemplar:
         return self.model
     
     def get_cost_info(self):
-        params = self.metrics["#Parameters"]
-        flops = self.metrics["FLOPS"]
-        return params, flops
+        return self.params, self.flops
     
     def mutate(self, random=True):
         

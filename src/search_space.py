@@ -11,8 +11,17 @@ class NetworkDecoded(nn.Module):
         self.layers = nn.Sequential()
         
         input_ch = input_channels_first
+        max_number_downsample = 4
+        num_strides = 0
         
         for block_type, output_ch, kernel_size,stride,expansion_factor in network_encoding:
+
+            if stride == 2:
+                num_strides += 1
+                if num_strides >= max_number_downsample:
+                    stride = 1
+
+
             if block_type == "ConvNeXt":
                 self.layers.append(
                     BUILDING_BLOCKS[block_type](input_ch,output_ch, expansion_factor)
@@ -154,7 +163,7 @@ class InvertedResidualBlock(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.depthwise = nn.Sequential(
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=kernel_size, stride=stride, padding=kernel_size // 2, groups=hidden_dim, bias=False),
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=kernel_size, stride=self.stride, padding=kernel_size // 2, groups=hidden_dim, bias=False),
             nn.BatchNorm2d(hidden_dim),
             nn.ReLU(inplace=True)
         )
@@ -169,7 +178,7 @@ class InvertedResidualBlock(nn.Module):
 
 
     def forward(self, x):
-        
+
         if self.stride != 1:
             identity = self.downsample(x)
         else:

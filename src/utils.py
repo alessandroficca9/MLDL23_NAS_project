@@ -93,7 +93,7 @@ def generate_random_params(block_type):
 
     output_channels = random.choice(channels)
     kernel_size = random.choice(kernel_sizes)
-    stride = random.choice(strides, p=[0.7, 0.3])
+    stride = random.choice(strides, p=[0.8, 0.2])
     if block_type == "InvertedResidual" or block_type == "ConvNeXt":
         expansion_factor = random.choice(expansion_factors)
         

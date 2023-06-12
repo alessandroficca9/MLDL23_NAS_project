@@ -32,6 +32,7 @@ def get_params_flops(model, inputs,device):
 
     input_dim = list( (inputs.shape)[1:])
     input = torch.rand([1] + input_dim).to(device)
+    model = model.to(device)
 
     flops = FlopCountAnalysis(model, input)
     flops.set_op_handle("aten::add_",None)
@@ -41,6 +42,8 @@ def get_params_flops(model, inputs,device):
     
     input = input.detach()
     del input
+    model.cpu()
+    del model 
     return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):
