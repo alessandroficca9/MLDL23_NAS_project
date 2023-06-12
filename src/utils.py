@@ -2,7 +2,7 @@
 from numpy import random
 from metrics.metrics import *
 import torch.nn as nn
-
+import matplotlib.pyplot as plt
 from search_space import BUILDING_BLOCKS 
 from metrics.utils_metrics import compute_metrics_population
 
@@ -93,10 +93,25 @@ def generate_random_params(block_type):
 
     output_channels = random.choice(channels)
     kernel_size = random.choice(kernel_sizes)
-    stride = random.choice(strides, p=[0.8, 0.2])
+    stride = random.choice(strides, p=[0.6, 0.4])
     if block_type == "InvertedResidual" or block_type == "ConvNeXt":
         expansion_factor = random.choice(expansion_factors)
         
     
     return [block_type, output_channels, kernel_size,stride,expansion_factor]
     
+
+
+def plot_metrics(exemplars):
+
+    synflow_socres = [exemplar.metrics["synflow"] for exemplar in exemplars]
+    naswot_scores = [exemplar.metrics["naswot"] for exemplar in exemplars]
+
+    fig, ax = plt.subplots()
+    ax.plot(naswot_scores, synflow_socres)
+    ax.set_title("Synflow score vs NASWOT score")
+    ax.set_xlabel("NASWOT score")
+    ax.set_ylabel("Synflow score")
+    plt.show()
+    
+    return 

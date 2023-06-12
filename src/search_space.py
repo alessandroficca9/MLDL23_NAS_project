@@ -109,35 +109,6 @@ class DepthwiseSeparableConvBlock(nn.Module):
         x = self.pointwise(x)
         return x
     
-class BottleneckResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride):
-        super(BottleneckResidualBlock, self).__init__()
-        self.conv1x1_1 = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels // 4, kernel_size=1, stride=1, bias=False),
-            nn.BatchNorm2d(out_channels // 4),
-            nn.ReLU(inplace=True)
-        )
-
-        self.conv3x3 = nn.Sequential(
-            nn.Conv2d(out_channels // 4, out_channels // 4, kernel_size=kernel_size, stride=stride,padding=kernel_size // 2, bias=False),
-            nn.BatchNorm2d(out_channels // 4),
-            nn.ReLU(inplace=True)
-        )
-        self.conv1x1_2 = nn.Sequential(
-            nn.Conv2d(out_channels // 4, out_channels, kernel_size=1, stride=1, bias=False),
-            nn.BatchNorm2d(out_channels) 
-            )
-        
-        self.relu = nn.ReLU(inplace=True)
-
-         # Utilizzato per aggiungere la shortcut connection solo se i canali di input e output sono diversi
-        if in_channels != out_channels or stride != 1:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1,stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels)
-            )
-        else:
-            self.shortcut = nn.Identity()
     
     def forward(self, x):
         identity = x
@@ -236,8 +207,7 @@ BUILDING_BLOCKS = {
     "ConvBNReLU" : ConvolutionalBlock,
     "InvertedResidual" : InvertedResidualBlock,
     "DWConv" : DepthwiseSeparableConvBlock,
-    #"BottleneckResidual" : BottleneckResidualBlock,
-    "ConvNeXt" : ConvNeXt,
+    "ConvNeXt" : ConvNeXt
     #"AdaptiveAvgPool2x2" : nn.AdaptiveAvgPool2d,
     #"AdaptiveMaxPool2x2" : nn.MaxPool2d,
 }

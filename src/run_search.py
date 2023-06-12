@@ -7,6 +7,7 @@ from models.MobileNetV2 import MobileNetV2
 from metrics.metrics import get_params_flops
 from decimal import Decimal
 import random
+from utils import plot_metrics, get_top_k_models
 
 def main():
     
@@ -66,7 +67,8 @@ def main():
                                        weight_params_flops=1,
                                        fixed_size=fixed_size)
         
-        model = best_models[0].get_model()
+        model = get_top_k_models(best_models,1)
+        model = model.get_model()
         
         if args.save:    
             torch.save(model, 'model_ea.pth')
@@ -85,7 +87,8 @@ def main():
                                     device=device,
                                     fixed_size=fixed_size)
         
-        model = best_models[0].get_model()
+        model = get_top_k_models(best_models,1)
+        model = model.get_model()
         
         if args.save:    
             torch.save(model, 'model_random.pth')
@@ -110,7 +113,7 @@ def main():
                 print(f"naswot score: {nn.get_metric_score('naswot')}")
 
 
-    
+    plot_metrics(best_models)
 
     
     return 
@@ -122,3 +125,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

@@ -10,28 +10,12 @@ from typing import Union, Text
 
 
 
-# def get_params(model: nn.Module):
-
-#     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-#     return model_params
-
-# def count_flops(model, input, device):
-    
-
-#     flops = FlopCountAnalysis(model, input)
-#     return flops.total()
-
-
-
-# def get_params_flops(model, inputs):
-#     num_flops, num_params = flopth(model, in_size=tuple((inputs.shape)[1:]))
-#     return num_params, num_flops
 
 def get_params_flops(model, inputs,device):
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     input_dim = list( (inputs.shape)[1:])
-    input = torch.rand([1] + input_dim).to(device)
+    input = torch.rand([1] + input_dim).to(device).type(torch.float16)
     model = model.to(device)
 
     flops = FlopCountAnalysis(model, input)
@@ -40,10 +24,10 @@ def get_params_flops(model, inputs,device):
     flops.set_op_handle("aten::hardtanh_",None)
     flops.uncalled_modules_warnings(False)
     
-    input = input.detach()
-    del input
-    model.cpu()
-    del model 
+    # input = input.detach()
+    # del input
+    # model.cpu()
+    # del model 
     return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):
