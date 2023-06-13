@@ -57,7 +57,7 @@ class NetworkDecoded(nn.Module):
             _, _, h, w = x.size()
             x = nn.AdaptiveAvgPool2d((h, w))(x)  # Adattamento delle dimensioni spaziali
 
-        x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)     # forse togliere adaptive avg pool finale??
+        x = nn.functional.adaptive_avg_pool2d(x, 1).reshape(x.shape[0], -1)    
         x = self.classifier(x)
         return x
     
@@ -110,16 +110,7 @@ class DepthwiseSeparableConvBlock(nn.Module):
         return x
     
     
-    def forward(self, x):
-        identity = x
-        
-        x = self.conv1x1_1(x)
-        x = self.conv3x3(x)
-        x = self.conv1x1_2(x)
-        
-        x += self.shortcut(identity)
-        x = self.relu(x)
-        return x
+
     
 class InvertedResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels,kernel_size, stride, expansion_factor=4):

@@ -1,6 +1,7 @@
 from torch.nn.modules.batchnorm import BatchNorm2d
 from torch import nn  
 import math 
+import torch 
 
 def _make_divisible(v, divisor, min_value=None):
     """
@@ -81,14 +82,25 @@ class MobileNetV2(nn.Module):
     input_channel = 32
     last_channel = 1280
 
+    # inverted_residual_setting = [
+    #     # t, c, n, s
+    #     [1,16,1,1],
+    #     [6,24,2,2],
+    #     [6,32,3,2],
+    #     [6, 64, 4, 2],
+    #     [6, 96, 3, 1],
+    #     [6, 160, 3, 2],
+    #     [6, 320, 1, 1],
+    # ]
+
     inverted_residual_setting = [
-        # t, c, n, s
+       #t, c, n, s
         [1,16,1,1],
-        [6,24,2,2],
-        [6,32,3,2],
-        [6, 64, 4, 2],
-        [6, 96, 3, 1],
-        [6, 160, 3, 2],
+        [6,24,1,2],
+        [6,32,2,2],
+        [6, 64, 2, 2],
+        [6, 96, 1, 1],
+        [6, 160, 1, 2],
         [6, 320, 1, 1],
     ]
 
@@ -116,17 +128,17 @@ class MobileNetV2(nn.Module):
         nn.Linear(self.last_channel, num_classes)
     )
 
+# # convert to half precision
+    if torch.cuda.is_available():
+        self.half()
+
+        # #convert BatchNorm to float32
+        for layer in self.modules():
+            if isinstance(layer, nn.BatchNorm2d):
+                layer.float()
+
     #weight initialization
     self._initialize_weights()
-
-    
-    # convert to half precision
-    #self.half()
-
-    # convert BatchNorm to float32
-    # for layer in self.modules():
-    #   if isinstance(layer, nn.BatchNorm2d):
-    #     layer.float()
 
   def _forward_impl(self, x):
         

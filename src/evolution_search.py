@@ -65,9 +65,9 @@ def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs,
     print("End evolution ...")
     history = clean_history(history, inputs, device, max_params=max_params, max_flops=max_flops)
     final_models = get_rank_based_on_metrics(history.values(), metrics, weight_params_flops=weight_params_flops)
-    best_models = get_top_k_models(final_models, k=3)
+    #best_models = get_top_k_models(final_models, k=3)
 
-    return best_models
+    return final_models
 
 
 def mutation(parents, cross, age, max_params, max_flops, inputs, device):

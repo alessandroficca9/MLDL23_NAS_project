@@ -8,9 +8,6 @@ from typing import Union, Text
 
 
 
-
-
-
 def get_params_flops(model, inputs,device):
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 

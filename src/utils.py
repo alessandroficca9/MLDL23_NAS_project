@@ -34,6 +34,7 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
             for i,exemplar in enumerate(rank_metric):
                 scores[exemplar] += i*weight_params_flops
         else:
+
             rank_metric = sorted(exemplars, key=lambda x:  x.get_metric_score(metric))
 
             for i,exemplar in enumerate(rank_metric):
@@ -46,13 +47,17 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
 
 
 def get_top_k_models(networks, k):
+    
+    if k == 1:
+        return networks[0]
+    
     return networks[:k]
 
 
 
 channels = [16, 32, 64, 96, 160, 320]
 kernel_sizes = [3,5,7]
-expansion_factors = [2,4,6]  # for only inverted residual block
+expansion_factors = [2,4,6]  # for only inverted residual block e ConvNeXt
 strides = [1,2]
 
 ## Structure of block:
@@ -102,16 +107,25 @@ def generate_random_params(block_type):
     
 
 
-def plot_metrics(exemplars):
+def plot_metrics(exemplars, best_exemplars):
 
-    synflow_socres = [exemplar.get_metric_score("synflow") for exemplar in exemplars]
+    synflow_scores = [exemplar.get_metric_score("synflow") for exemplar in exemplars]
     naswot_scores = [exemplar.get_metric_score("naswot") for exemplar in exemplars]
 
+    best_synflow_scores = [exemplar.get_metric_score("synflow") for exemplar in best_exemplars]
+    best_naswot_scores = [exemplar.get_metric_score("naswot") for exemplar in best_exemplars]
+
+    top_1_synflow_score = best_synflow_scores[0]
+    top_1_naswot_score = best_naswot_scores[0]
+
     fig, ax = plt.subplots()
-    ax.plot(naswot_scores, synflow_socres)
+    ax.scatter(naswot_scores, synflow_scores, label="All models")
+    ax.scatter(best_naswot_scores, best_synflow_scores, color='orange', label="Top 10 models")
+    ax.scatter(top_1_naswot_score, top_1_synflow_score, color="red", label = "Top 1 model")
     ax.set_title("Synflow score vs NASWOT score")
     ax.set_xlabel("NASWOT score")
     ax.set_ylabel("Synflow score")
-    plt.show()
+    plt.legend()
+    plt.savefig("Output.jpg")
 
     return 

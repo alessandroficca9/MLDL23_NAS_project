@@ -70,6 +70,15 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        #convert to half precision
+        if torch.cuda.is_available():
+            self.half()
+
+        # #convert BatchNorm to float32
+            for layer in self.modules():
+                if isinstance(layer, nn.BatchNorm2d):
+                    layer.float()
+
         self._initialize_weights()
 
     def _make_layer(self, block, planes, blocks, stride=1):

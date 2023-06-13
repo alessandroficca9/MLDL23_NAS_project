@@ -4,7 +4,7 @@ from random_search import search_random
 from evolution_search import search_evolution
 from models.resnet import ResNet
 from models.MobileNetV2 import MobileNetV2
-from metrics.metrics import get_params_flops
+from metrics.metrics import get_params_flops, compute_synflow_per_weight, compute_naswot_score
 from decimal import Decimal
 import random
 from utils import plot_metrics, get_top_k_models
@@ -16,7 +16,7 @@ def main():
 
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","our_cnn"))
+    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","MobileNetV2",'ResNet'))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--metrics', type=str, default="without_cost", choices=("without_cost", "with_cost"))
@@ -52,11 +52,10 @@ def main():
     else:
         metrics = ['synflow','naswot','FLOPS','#Parameters']
 
-    
     if args.algo == "ea_search":
         population_size = args.initial_pop
         num_generations = args.generation_ea
-        best_models = search_evolution(population_size=population_size,
+        rank_models = search_evolution(population_size=population_size,
                                        num_max_blocks=max_blocks,
                                        max_step=num_generations,
                                        metrics=metrics,
@@ -67,15 +66,14 @@ def main():
                                        weight_params_flops=1,
                                        fixed_size=fixed_size)
         
-        best_exemplar = get_top_k_models(best_models,1)
-        model = best_exemplar.get_model()
-        
-        if args.save:    
-            torch.save(model, 'model_ea.pth')
+        best_exemplars = get_top_k_models(rank_models,10 if len(rank_models) > 10 else len(rank_models))
+        top_1_exemplar = best_exemplars[0]
+        top_1_model = top_1_exemplar.get_model()
+        plot_metrics(rank_models, best_exemplars)
     
     elif args.algo == "random_search":
         num_models = args.n_random
-        best_models = search_random(num_iterations=num_models,
+        rank_models = search_random(num_iterations=num_models,
                                     num_max_blocks=max_blocks,
                                     max_params=max_params,
                                     max_flops=max_flops,
@@ -87,37 +85,43 @@ def main():
                                     device=device,
                                     fixed_size=fixed_size)
         
-        best_exemplar = get_top_k_models(best_models,1)
-        model = best_exemplar.get_model()
+        best_exemplars = get_top_k_models(rank_models,10 if len(rank_models) > 10 else len(rank_models))
+        top_1_exemplar = best_exemplars[0]
+        top_1_model = top_1_exemplar.get_model()
+        plot_metrics(rank_models, best_exemplars)
         
-        if args.save:    
-            torch.save(model, 'model_random.pth')
 
-    elif args.algo == "our_cnn":
-        model = MobileNetV2()
-        params, flops = get_params_flops(model, inputs, device)
-        print(f"Manuall CNN: params = {params} flops = {flops}")
-        if args.save:    
-            torch.save(model, 'model_manual.pth')
-        
+    elif args.algo == "MobileNetV2":
+        top_1_model = MobileNetV2()
+        params, flops = get_params_flops(top_1_model, inputs, device)
+        inputs, top_1_model = inputs.to(device), top_1_model.to(device)
+        naswot = compute_naswot_score(top_1_model, inputs=inputs, device=device)
+        synflow = compute_synflow_per_weight(top_1_model, inputs, device)
+        print(f"MobileNetV2 --- \n params = {params} flops = {flops} \n")
+        print(f"Synflow score: {synflow}\nNASWOT score: {naswot}")
+
+    elif args.algo == "ResNet":
+        top_1_model = ResNet()
+        params, flops = get_params_flops(top_1_model, inputs, device)
+        inputs, top_1_model = inputs.to(device), top_1_model.to(device)
+        naswot = compute_naswot_score(top_1_model, inputs=inputs, device=device)
+        synflow = compute_synflow_per_weight(top_1_model, inputs, device)
+        print(f"ResNet --- \n params = {params} flops = {flops} \n")
+        print(f"Synflow score: {synflow}\nNASWOT score: {naswot}")
+
+
+    if args.save:
+        torch.save(top_1_model, f'Model_{args.algo}.pth')   
         
     #print best model
     print("Best exemplar obtained ---")
-    print(f"Model: {model}")
-    print(f"#Parameters: {best_exemplar.get_cost_info()[0]}  FLOPS: {best_exemplar.get_cost_info()[1]}")
-    print(f"Synflow score: {best_exemplar.get_metric_score('synflow')}")
-    print(f"NASWOT score: {best_exemplar.get_metric_score('naswot')}")
-
-    
-
-
-    plot_metrics(best_models)
+    print(f"Model: {top_1_model}")
+    print(f"#Parameters: {top_1_exemplar.get_cost_info()[0]}  FLOPS: {top_1_exemplar.get_cost_info()[1]}")
+    print(f"Synflow score: {top_1_exemplar.get_metric_score('synflow')}")
+    print(f"NASWOT score: {top_1_exemplar.get_metric_score('naswot')}")
 
     
     return 
-
-
-
 
 
 
