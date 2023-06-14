@@ -142,7 +142,8 @@ def trainer(
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
+    train_loss = checkpoint['loss']
+    model.train()
 
   for e in range(start_epoch,epochs):
     print('training epoch number {:.2f} of total epochs of {:.2f}'.format(e,epochs))
