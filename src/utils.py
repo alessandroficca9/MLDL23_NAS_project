@@ -29,7 +29,9 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
     for metric in metrics:
 
         if metric == "#Parameters" or metric == "FLOPS":
-            rank_metric = sorted(exemplars, key=lambda x: x.get_metric_score(metric), reverse=True)
+            rank_metric = sorted(exemplars, 
+                                 key=lambda x: x.get_cost_info()[0] if metric == "#Parameters" else x.get_cost_info()[1],
+                                 reverse=True)
 
             for i,exemplar in enumerate(rank_metric):
                 scores[exemplar] += i*weight_params_flops
@@ -39,6 +41,42 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
 
             for i,exemplar in enumerate(rank_metric):
                 scores[exemplar] += i
+
+    final_rank = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True)).keys()
+
+    return list(final_rank)
+
+
+
+def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
+
+    scores = {exemplar : 0 for exemplar in exemplars}
+
+    for metric in metrics:
+
+        if metric == "#Parameters":
+            scores = [x.get_cost_info()[0] for x in exemplars]
+            max_score = max(scores)
+
+            for i,exemplar in enumerate(exemplars):
+                score = exemplar.get_cost_info()[0] 
+                scores[exemplar] -= weight_params_flops*(score / max_score)
+        
+        elif metric == "FLOPS":
+            scores = [x.get_cost_info()[1] for x in exemplars]
+            max_score = max(scores)
+
+            for i,exemplar in enumerate(exemplars):
+                score = exemplar.get_cost_info()[1] 
+                scores[exemplar] -= weight_params_flops*(score / max_score)
+        
+        else:
+
+            scores = [x.get_metric_score(metric) for x in exemplars]
+            max_score = max(scores)
+
+            for i,exemplar in enumerate(exemplars):
+                scores[exemplar] += (exemplar.get_metric_score(metric) / max_score) 
 
     final_rank = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True)).keys()
 

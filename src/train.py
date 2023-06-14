@@ -5,8 +5,8 @@ import torch.nn as nn
 from timm.scheduler import CosineLRScheduler
 
 
-def get_optimizer(net, lr):
-  optimizer = torch.optim.SGD(net.parameters() ,lr=lr)
+def get_optimizer(net, lr,wd, momentum):
+  optimizer = torch.optim.SGD(net.parameters() ,lr=lr,weight_decay=wd, momentum=momentum)
   #optimizer = torch.optim.AdamW(net.parameters(), lr=lr, weight_decay=wd)
   return optimizer 
 
@@ -117,12 +117,12 @@ def trainer(
   
   model = model.to(device)
   # defining the optimizer
-  optimizer = get_optimizer(model, learning_rate)
+  optimizer = get_optimizer(model, learning_rate,wd=weight_decay, momentum=momentum)
   # defining the loss function
   loss_function = get_loss_function()
   # finaly training the model 
-  if weight_decay != 0:
-    scheduler = CosineLRScheduler(optimizer=optimizer, t_initial=epochs//2)
+  # if weight_decay != 0:
+  #   scheduler = CosineLRScheduler(optimizer=optimizer, t_initial=epochs//2)
 
   # In order to save the accuracy and loss we use a list to save them in each epoch 
   val_loss_list = []
@@ -134,7 +134,17 @@ def trainer(
   trigger_times = 0
   patience = 3
 
-  for e in range(epochs):
+  start_epoch = 0
+  ## Resume checkpoint if
+  if start_epoch > 0:
+    PATH = f"check_MobileNetV2_{start_epoch}"
+    checkpoint = torch.load(PATH) 
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    start_epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+
+  for e in range(start_epoch,epochs):
     print('training epoch number {:.2f} of total epochs of {:.2f}'.format(e,epochs))
     train_loss, train_accuracy = train(model, train_loader, optimizer, loss_function,device)
     val_loss, val_accuracy = test(model, val_loader, loss_function,device)
@@ -142,8 +152,8 @@ def trainer(
     val_accuracy_list.append(val_accuracy)
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
-    if weight_decay != 0:
-      scheduler.step(e+1)
+    # if weight_decay != 0:
+    #   scheduler.step(e+1)
 
     current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))
@@ -166,6 +176,16 @@ def trainer(
         trigger_times = 0
       
       last_loss = current_loss
+
+    ## store checkpoint training
+    if e // 8 == 0:
+      PATH = f"check_MobileNetV2_{e}"
+      torch.save({
+            'epoch': e,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': train_loss,
+            }, PATH)
 
 
   print('-----------------------------------------------------')

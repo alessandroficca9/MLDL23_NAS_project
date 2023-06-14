@@ -12,8 +12,13 @@ def get_params_flops(model, inputs,device):
     model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     input_dim = list( (inputs.shape)[1:])
-    input = torch.rand([1] + input_dim).to(device).type(torch.float16)
-    model = model.to(device)
+    if device == "cuda":
+        input = torch.rand([1] + input_dim).to(device).type(torch.float16)
+        model = model.to(device)
+    else:
+        input = torch.rand([1]+input_dim)
+
+        
 
     flops = FlopCountAnalysis(model, input)
     flops.set_op_handle("aten::add_",None)

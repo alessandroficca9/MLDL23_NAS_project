@@ -30,7 +30,7 @@ class ConvBNReLU(nn.Sequential):
     super(ConvBNReLU,self).__init__(
         nn.Conv2d(in_ch, out_ch, kernel_size, stride, padding, groups=groups,bias=False),
         BatchNorm2d(out_ch),
-        nn.ReLU6(inplace=True)
+        nn.ReLU(inplace=True)
     )
         
 
@@ -97,8 +97,8 @@ class MobileNetV2(nn.Module):
        #t, c, n, s
         [1,16,1,1],
         [6,24,1,2],
-        [6,32,2,2],
-        [6, 64, 2, 2],
+        [6,32,1,2],
+        [6, 64, 1, 2],
         [6, 96, 1, 1],
         [6, 160, 1, 2],
         [6, 320, 1, 1],

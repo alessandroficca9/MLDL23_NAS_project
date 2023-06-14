@@ -59,7 +59,7 @@ val_loss, val_accuracy, train_loss, train_accuracy = trainer(train_dataloader,
                                                             epochs=epochs,
                                                             model= model,
                                                             device=device,
-                                                            early_stopping=False)
+                                                            early_stopping=True)
                                      
     
 

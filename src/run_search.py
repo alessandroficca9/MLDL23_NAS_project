@@ -114,11 +114,12 @@ def main():
         torch.save(top_1_model, f'Model_{args.algo}.pth')   
         
     #print best model
-    print("Best exemplar obtained ---")
-    print(f"Model: {top_1_model}")
-    print(f"#Parameters: {top_1_exemplar.get_cost_info()[0]}  FLOPS: {top_1_exemplar.get_cost_info()[1]}")
-    print(f"Synflow score: {top_1_exemplar.get_metric_score('synflow')}")
-    print(f"NASWOT score: {top_1_exemplar.get_metric_score('naswot')}")
+    if args.algo == "random_search" or args.algo == "ea_search":
+        print("Best exemplar obtained ---")
+        print(f"Model: {top_1_model}")
+        print(f"#Parameters: {top_1_exemplar.get_cost_info()[0]}  FLOPS: {top_1_exemplar.get_cost_info()[1]}")
+        print(f"Synflow score: {top_1_exemplar.get_metric_score('synflow')}")
+        print(f"NASWOT score: {top_1_exemplar.get_metric_score('naswot')}")
 
     
     return 
