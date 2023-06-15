@@ -6,12 +6,12 @@ from metrics.utils_metrics import  isfeasible, compute_metrics
 from ea_utils import update_history, prune_population, clean_history
 from tqdm import tqdm 
 
-def population_init(N, num_max_blocks, max_params, max_flops, inputs, device, fixed_size):
+def population_init(N, num_max_blocks,num_min_blocks, max_params, max_flops, inputs, device, fixed_size):
 
     population = []
 
     while len(population) < N:
-        network_encode = generate_random_network_encode(input_channels_first=3, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
+        network_encode = generate_random_network_encode(input_channels_first=3,num_min_blocks=num_min_blocks, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
         exemplar = Exemplar(network_encode, age=0)
         if isfeasible(exemplar,max_params, max_flops, inputs, device):
             population.append(exemplar)
@@ -26,11 +26,11 @@ def population_init(N, num_max_blocks, max_params, max_flops, inputs, device, fi
 
 
 
-def search_evolution(population_size, num_max_blocks, max_step, metrics, inputs, device, max_flops, max_params, weight_params_flops=1,fixed_size=False):
+def search_evolution(population_size, num_max_blocks,num_min_blocks, max_step, metrics, inputs, device, max_flops, max_params, weight_params_flops=1,fixed_size=False):
 
     print("Start Evolutionary search ...")
     print("Population initialization ...")
-    population = population_init(population_size, num_max_blocks,max_params, max_flops, inputs, device, fixed_size)
+    population = population_init(population_size, num_max_blocks,num_min_blocks,max_params, max_flops, inputs, device, fixed_size)
 
     #compute_metrics_population(population, inputs, device)
     history = {}

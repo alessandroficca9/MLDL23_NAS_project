@@ -57,6 +57,7 @@ def main():
         num_generations = args.generation_ea
         rank_models = search_evolution(population_size=population_size,
                                        num_max_blocks=max_blocks,
+                                       num_min_blocks=3,
                                        max_step=num_generations,
                                        metrics=metrics,
                                        inputs=inputs,
@@ -75,6 +76,7 @@ def main():
         num_models = args.n_random
         rank_models = search_random(num_iterations=num_models,
                                     num_max_blocks=max_blocks,
+                                    num_min_blocks=3,
                                     max_params=max_params,
                                     max_flops=max_flops,
                                     input_channels_first=3,

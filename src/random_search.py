@@ -6,7 +6,7 @@ from utils import generate_random_network_encode, get_rank_based_on_metrics, get
 from metrics.utils_metrics import  isfeasible, compute_metrics
 from tqdm import tqdm
 
-def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_channels_first, \
+def search_random(num_iterations, num_max_blocks,num_min_blocks, max_params, max_flops, input_channels_first, \
                    k, metrics,weigth_params_flops, inputs, device, fixed_size=False):
 
     print("Start random search ...")
@@ -16,7 +16,7 @@ def search_random(num_iterations, num_max_blocks, max_params, max_flops, input_c
     for i in tqdm(range(num_iterations)):
         #print(f"Iteration: {i}/{num_iterations}")
             
-        network_encoded = generate_random_network_encode(input_channels_first=input_channels_first, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
+        network_encoded = generate_random_network_encode(input_channels_first=input_channels_first,num_min_blocks=num_min_blocks, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
             
         exemplar = Exemplar(network_encoded)
 

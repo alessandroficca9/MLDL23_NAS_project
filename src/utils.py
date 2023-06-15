@@ -101,12 +101,12 @@ strides = [1,2]
 ## Structure of block:
 ## [ block_type, output_channels, kernel, stride, expansion_factor ]   
 
-def generate_random_network_encode(input_channels_first, num_max_blocks, fixed_size):
+def generate_random_network_encode(input_channels_first,num_min_blocks=1, num_max_blocks=15, fixed_size=False):
 
     #input_channels = input_channels_first
     blocks = []
 
-    for _ in range(random.randint(1,num_max_blocks) if fixed_size == False else num_max_blocks):
+    for _ in range(random.randint(num_min_blocks,num_max_blocks) if fixed_size == False else num_max_blocks):
 
         block = generate_random_block()
         blocks.append(block)
