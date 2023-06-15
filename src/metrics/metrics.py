@@ -120,9 +120,6 @@ def compute_synflow_per_weight(net, inputs, device, mode='param', remap: Union[T
             if remap:
                 remap_fun = {
                     'log': lambda x: torch.log(x + 1),
-                    # Other reparametrizations can be added here
-                    # 'atan': torch.arctan,
-                    # 'sqrt': torch.sqrt
                 }
                 # LogSynflow
                 g = remap_fun[remap](layer.weight.grad)

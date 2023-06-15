@@ -132,7 +132,7 @@ def trainer(
 
   last_loss = inf 
   trigger_times = 0
-  patience = 3
+  patience = 4
 
   start_epoch = 0
   ## Resume checkpoint if
