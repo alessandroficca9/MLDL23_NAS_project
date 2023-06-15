@@ -179,7 +179,7 @@ def trainer(
       last_loss = current_loss
 
     ## store checkpoint training
-    if e % 8 == 0:
+    if e % 5 == 0:
       PATH = f"check_MobileNetV2_{e}"
       torch.save({
             'epoch': e,
@@ -187,6 +187,13 @@ def trainer(
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': train_loss,
             }, PATH)
+      
+      with open("result_random_search.txt","a+") as f:
+          f.write(f"\nEpochs: {e}")
+          f.write(f"\nTrain loss: {train_loss_list}")
+          f.write(f"\nTrain accuracy: {train_accuracy_list}")
+          f.write(f"\nValidation loss: {val_loss_list}")
+          f.write(f"\nValidation loss: {val_accuracy_list}")
 
 
   print('-----------------------------------------------------')

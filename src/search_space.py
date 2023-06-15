@@ -199,8 +199,6 @@ BUILDING_BLOCKS = {
     "InvertedResidual" : InvertedResidualBlock,
     "DWConv" : DepthwiseSeparableConvBlock,
     "ConvNeXt" : ConvNeXt
-    #"AdaptiveAvgPool2x2" : nn.AdaptiveAvgPool2d,
-    #"AdaptiveMaxPool2x2" : nn.MaxPool2d,
 }
 
 

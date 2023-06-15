@@ -40,7 +40,7 @@ def main():
     fixed_size = args.fixed_size
     resolution_size = args.resolution_size
 
-    mini_batch_size = 4
+    mini_batch_size = 32
     
     if device == "cpu":
          inputs = torch.rand(mini_batch_size,3,resolution_size, resolution_size).to(device)
