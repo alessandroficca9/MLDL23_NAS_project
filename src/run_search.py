@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import torch
 from random_search import search_random
 from evolution_search import search_evolution
-from models.resnet import ResNet
+
 from models.MobileNetV2 import MobileNetV2
 from metrics.metrics import get_params_flops, compute_synflow_per_weight, compute_naswot_score
 from decimal import Decimal
@@ -16,7 +16,7 @@ def main():
 
     parser = ArgumentParser()
     
-    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","MobileNetV2",'ResNet'))
+    parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","MobileNetV2"))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
     parser.add_argument('--metrics', type=str, default="with_cost", choices=("without_cost", "with_cost"))
@@ -100,15 +100,6 @@ def main():
         naswot = compute_naswot_score(top_1_model, inputs=inputs, device=device)
         synflow = compute_synflow_per_weight(top_1_model, inputs, device)
         print(f"MobileNetV2 --- \n params = {params} flops = {flops} \n")
-        print(f"Synflow score: {synflow}\nNASWOT score: {naswot}")
-
-    elif args.algo == "ResNet":
-        top_1_model = ResNet()
-        params, flops = get_params_flops(top_1_model, inputs, device)
-        inputs, top_1_model = inputs.to(device), top_1_model.to(device)
-        naswot = compute_naswot_score(top_1_model, inputs=inputs, device=device)
-        synflow = compute_synflow_per_weight(top_1_model, inputs, device)
-        print(f"ResNet --- \n params = {params} flops = {flops} \n")
         print(f"Synflow score: {synflow}\nNASWOT score: {naswot}")
 
 
