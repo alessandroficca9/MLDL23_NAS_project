@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--algo", type=str, default='random_search', choices=("random_search", "ea_search","MobileNetV2",'ResNet'))
     parser.add_argument('--max_flops', type=float, default=200*(10**6))
     parser.add_argument('--max_params', type=float, default=25*(10**5))
-    parser.add_argument('--metrics', type=str, default="without_cost", choices=("without_cost", "with_cost"))
+    parser.add_argument('--metrics', type=str, default="with_cost", choices=("without_cost", "with_cost"))
     parser.add_argument('--n_random', type=int, default=20)
     parser.add_argument('--initial_pop', type=int, default=5)
     parser.add_argument('--generation_ea', type=int, default=30)
@@ -82,7 +82,7 @@ def main():
                                     input_channels_first=3,
                                     k=3,
                                     metrics=metrics,
-                                    weigth_params_flops=1,
+                                    weight_params_flops=1,
                                     inputs=inputs,
                                     device=device,
                                     fixed_size=fixed_size)
