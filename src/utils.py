@@ -50,7 +50,7 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
 
 def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
 
-    scores = {exemplar : 0 for exemplar in exemplars}
+    tot_scores = {exemplar : 0 for exemplar in exemplars}
 
     for metric in metrics:
 
@@ -60,7 +60,7 @@ def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
 
             for i,exemplar in enumerate(exemplars):
                 score = exemplar.get_cost_info()[0] 
-                scores[exemplar] -= weight_params_flops*(score / max_score)
+                tot_scores[exemplar] -= weight_params_flops*(score / max_score)
         
         elif metric == "FLOPS":
             scores = [x.get_cost_info()[1] for x in exemplars]
@@ -68,7 +68,7 @@ def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
 
             for i,exemplar in enumerate(exemplars):
                 score = exemplar.get_cost_info()[1] 
-                scores[exemplar] -= weight_params_flops*(score / max_score)
+                tot_scores[exemplar] -= weight_params_flops*(score / max_score)
         
         else:
 
@@ -76,7 +76,7 @@ def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
             max_score = max(scores)
 
             for i,exemplar in enumerate(exemplars):
-                scores[exemplar] += (exemplar.get_metric_score(metric) / max_score) 
+                tot_scores[exemplar] += (exemplar.get_metric_score(metric) / max_score) 
 
     final_rank = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True)).keys()
 
