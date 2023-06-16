@@ -179,7 +179,7 @@ def trainer(
       last_loss = current_loss
 
     ## store checkpoint training
-    if e % 5 == 0:
+    if e % 5 == 0 or e == epochs-1:
       PATH = f"check_MobileNetV2_{e}"
       torch.save({
             'epoch': e,
