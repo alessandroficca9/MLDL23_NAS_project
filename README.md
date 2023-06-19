@@ -30,13 +30,17 @@ VWW_OUTPUT_DIR="visualwakewords"
 ```
 ## Run the project
 To run the search algorithm, use the following code. The parameters are:
-- algo: type of algorithm. You can choose between "random_search", "ea_search" (evolutionary algorithm), "our_cnn" (manually design cnn)
-- max_flops: constraint about number of flops
-- max_params: constraint about number of parameters
-- initial_pop: initial population size (needed if you choose "ea_search")
-- generation_ea: number of steps of evolutionary algorithm (needed if you choose "ea_search")
-- n_random: number of steps of random search (needed if you choose "random_search")
-- save: if True the result model is stored in the file "model.pth"
+- **algo**: type of algorithm. You can choose between "random_search", "ea_search" (evolutionary algorithm), "our_cnn" (manually design cnn)
+- **max_flops**: constraint about number of flops
+- **max_params**: constraint about number of parameters
+- **metrics**: the metrics implemented are LogSynflow and NASWOT. The options available are "with_cost", means the algorithm will consider the computational cost, "without_cost", the algorithm will consider only the metrics implemented
+- **n_random**: number of iterations of random search (needed if you choose "random_search")
+- **initial_pop**: initial population size (needed if you choose "ea_search")
+- **generation_ea**: number of steps of evolutionary algorithm (needed if you choose "ea_search")
+- **max_block**: maximum number of blocks in a model
+- **resolution_size**: resolution size of the image, options: 96, 128, 160, 192, 224
+- **fixed_size**: if false, the models will not have a fixed number of blocks
+- **save**: if True the result model is stored in the file "model.pth"
 
 ```bash
 python run_search.py \
