@@ -5,6 +5,8 @@ import math
 
 class NetworkDecoded(nn.Module):
 
+
+
     def __init__(self, network_encoding, num_classes=2, input_channels_first=3):
         super(NetworkDecoded, self).__init__()
 

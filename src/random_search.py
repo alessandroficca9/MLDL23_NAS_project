@@ -7,14 +7,13 @@ from metrics.utils_metrics import  isfeasible, compute_metrics
 from tqdm import tqdm
 
 def search_random(num_iterations, num_max_blocks,num_min_blocks, max_params, max_flops, input_channels_first, \
-                   k, metrics,weight_params_flops, inputs, device, fixed_size=False):
+                   k, metrics,weight_params_flops, inputs, device, fixed_size=False, fitness_func=False):
 
     print("Start random search ...")
     population = []
 
    
     for i in tqdm(range(num_iterations)):
-        #print(f"Iteration: {i}/{num_iterations}")
             
         network_encoded = generate_random_network_encode(input_channels_first=input_channels_first,num_min_blocks=num_min_blocks, num_max_blocks=num_max_blocks, fixed_size=fixed_size)
             
@@ -30,13 +29,12 @@ def search_random(num_iterations, num_max_blocks,num_min_blocks, max_params, max
     
     print("Finish random search.")
     print(f"Remaining {len(population)} that satisfy constraints")
-    #population_rank = get_rank_based_on_metrics(population, metrics,weight_params_flops=weight_params_flops)
-    #top_k_models = get_top_k_models(population_rank, k)
-    population_rank = get_rank_based_fitness(population, metrics, weight_params_flops=weight_params_flops)
-
+    
+    if fitness_func:
+        population_rank = get_rank_based_fitness(population, metrics, weight_params_flops=weight_params_flops)
+    else:
+        population_rank = get_rank_based_on_metrics(population, metrics, weight_params_flops=1)
    
-
-    #return top_k_models
     return population_rank
 
     

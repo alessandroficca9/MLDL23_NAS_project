@@ -26,10 +26,7 @@ def get_params_flops(model, inputs,device):
     flops.set_op_handle("aten::hardtanh_",None)
     flops.uncalled_modules_warnings(False)
     
-    # input = input.detach()
-    # del input
-    # model.cpu()
-    # del model 
+
     return model_params, flops.total()
 
 def compute_naswot_score(net: nn.Module, inputs: torch.Tensor, device: torch.device):

@@ -33,7 +33,13 @@ class Exemplar:
     
     def mutate(self, random=True):
         
-        ## Mutation_options = ["Change a block", "Cut a block", "add a block"]
+        """
+        Mutation of the model. Options: 
+        - change a block
+        - cut a block
+        - add a block
+        """
+        
         probs = [1/3, 1/3, 1/3]
         chosen = np.random.multinomial(n=1, pvals=probs)
         chosen = np.argmax(chosen)

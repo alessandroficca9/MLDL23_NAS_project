@@ -22,9 +22,6 @@ def train(net, data_loader, optimizer, loss_function, device):
   
   net.train()
 
-  #use_amp = False
-  #try AMP
-  #scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
   with tqdm.tqdm(total=len(data_loader)) as pbar:
 
@@ -48,10 +45,7 @@ def train(net, data_loader, optimizer, loss_function, device):
       loss.backward()
       optimizer.step()
       optimizer.zero_grad(set_to_none=True)
-      # scaler.scale(loss).backward()
-      # scaler.step(optimizer)
-      # scaler.update()
-      # optimizer.zero_grad()
+
 
 
       samples += inputs.shape[0]
@@ -81,17 +75,12 @@ def test(net, data_loader, loss_function, device='cuda:0'):
           inputs, targets = inputs.to(device), targets.to(device)
           
 
-        # with torch.cuda.amp.autocast():
-        #   outputs = net(inputs)
-        #   loss = loss_function(outputs, targets)
         with torch.autocast(device_type='cuda', dtype=torch.float16):
           outputs = net(inputs) # Forward pass
           loss = loss_function(outputs, targets) # Apply the loss
 
-        # Forward pass
-        #outputs = net(inputs)
         _, predicted = outputs.max(1)
-        #loss = loss_function(outputs,targets) 
+  
         samples += inputs.shape[0]
         cumulative_loss += loss.item()
         cumulative_accuracy += predicted.eq(targets).sum().item()
@@ -118,11 +107,10 @@ def trainer(
   model = model.to(device)
   # defining the optimizer
   optimizer = get_optimizer(model, learning_rate,wd=weight_decay, momentum=momentum)
+
   # defining the loss function
   loss_function = get_loss_function()
-  # finaly training the model 
-  # if weight_decay != 0:
-  #   scheduler = CosineLRScheduler(optimizer=optimizer, t_initial=epochs//2)
+
 
   # In order to save the accuracy and loss we use a list to save them in each epoch 
   val_loss_list = []
@@ -153,8 +141,7 @@ def trainer(
     val_accuracy_list.append(val_accuracy)
     train_loss_list.append(train_loss)
     train_accuracy_list.append(train_accuracy)
-    # if weight_decay != 0:
-    #   scheduler.step(e+1)
+
 
     current_loss = val_loss 
     print('Epoch: {:d}'.format(e+1))

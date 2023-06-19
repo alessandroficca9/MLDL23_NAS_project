@@ -7,8 +7,15 @@ from search_space import BUILDING_BLOCKS
 from metrics.utils_metrics import compute_metrics_population
 
 
-# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-# INPUT = torch.rand(1,3,224,224)
+channels = [16, 32, 64, 96, 160, 320]
+kernel_sizes = [3,5,7]
+expansion_factors = [2,4,6]  # for only inverted residual block e ConvNeXt
+strides = [1,2]
+
+## Structure of block:
+## [ block_type, output_channels, kernel, stride, expansion_factor ]   
+
+
 
 def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
     """
@@ -49,6 +56,13 @@ def get_rank_based_on_metrics(exemplars, metrics, weight_params_flops=1):
 
 
 def get_rank_based_fitness(exemplars, metrics, weight_params_flops=1):
+
+    """
+    Ranks the model through the fitness function: 
+    
+    score = synflow/max_synflow + NASWOT/max_NASWOT -w*(params/max_params + flops/max_flops)
+    
+    """
 
     tot_scores = {exemplar : 0 for exemplar in exemplars}
 
@@ -93,13 +107,6 @@ def get_top_k_models(networks, k):
 
 
 
-channels = [16, 32, 64, 96, 160, 320]
-kernel_sizes = [3,5,7]
-expansion_factors = [2,4,6]  # for only inverted residual block e ConvNeXt
-strides = [1,2]
-
-## Structure of block:
-## [ block_type, output_channels, kernel, stride, expansion_factor ]   
 
 def generate_random_network_encode(input_channels_first,num_min_blocks=1, num_max_blocks=15, fixed_size=False):
 
@@ -127,12 +134,6 @@ def generate_random_params(block_type):
     stride = 0
     expansion_factor = 0
 
-    # if block_type == "ConvNeXt":
-    #     output_channels = input_channels
-    # else:
-    #     output_channels = random.choice(channels)
-    #     kernel_size = random.choice(kernel_sizes)
-    #     stride = random.choice(strides, p=[0.75, 0.25])
 
     output_channels = random.choice(channels)
     kernel_size = random.choice(kernel_sizes)

@@ -20,7 +20,7 @@ def population_init(N, num_max_blocks,num_min_blocks, max_params, max_flops, inp
         else:
 
             del exemplar
-            #exemplar.model = exemplar.model.cpu()
+           
     
     return population
 
@@ -36,15 +36,12 @@ def search_evolution(population_size, num_max_blocks,num_min_blocks, max_step, m
     history = {}
     history = update_history(population, history)
 
-    # pruning first generation
-    #population = prune_population(population, inputs, device, kill_oldest=False, top_N=population_size, metrics=metrics,
-    #                               max_params=max_params, max_flops=max_flops)
-
+  
     print("Start evolution ...")
     
     for step in tqdm(range(max_step)):
         
-        #print(f"Generation {step} ...")
+        
         sampled = random.sample(population,k=5)
         sampled = get_rank_based_on_metrics(sampled, metrics,weight_params_flops=weight_params_flops)
 
@@ -65,12 +62,16 @@ def search_evolution(population_size, num_max_blocks,num_min_blocks, max_step, m
     print("End evolution ...")
     history = clean_history(history, inputs, device, max_params=max_params, max_flops=max_flops)
     final_models = get_rank_based_on_metrics(history.values(), metrics, weight_params_flops=weight_params_flops)
-    #best_models = get_top_k_models(final_models, k=3)
+    
 
     return final_models
 
 
 def mutation(parents, cross, age, max_params, max_flops, inputs, device):
+
+    """
+    Return child models obtained changing the parent models
+    """
 
     while True:
         child_1 = parents[0].mutate()
@@ -105,10 +106,10 @@ def mutation(parents, cross, age, max_params, max_flops, inputs, device):
 
 def crossover(parent_1, parent_2):
 
-    #different kind of crossover
+    """
+    Return a child model obtained from the parent models
+    """
 
-    #1. for idx of block, choose randomly between the parents
-    #2. decide a crossover point and join the different blocks
     network_crossover = []
     min_lenghts = min(len(parent_1.network_encode), len(parent_2.network_encode))
 

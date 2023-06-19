@@ -27,7 +27,7 @@ root_data = args.root_data
 path_annotations_train = args.ann_train
 path_annotations_val = args.ann_val
 
-# batch size = 64, 96, 128 (possible error CUDA out of memory)
+# batch size = 64, 96, 128, 256
 batch_size = args.batch_size
 num_batches = args.num_batches
 resolution_size = args.resolution_size
@@ -48,7 +48,7 @@ train_dataloader, val_dataloader, test_dataloader = get_data_loader(root_data,
                                                                     use_subset=use_subset,
                                                                     num_batches=num_batches)
 
-#inputs = next(iter(train_dataloader))
+
 
 val_loss, val_accuracy, train_loss, train_accuracy = trainer(train_dataloader,
                                                             val_dataloader,

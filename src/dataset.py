@@ -7,10 +7,12 @@ from torchvision import transforms as T
 from timm.data import create_transform
 
 def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch_size, test_batch_size=256,resolution_size=224,use_subset=False, num_batches=100):
-
-  # prepare data trasformations
-  # Check resize try other values
-  # Data augumentation? 
+  
+  """
+  Returns data loaders of train set, validation set and test set.
+  """
+  
+  
   transform_training = create_transform(input_size=resolution_size,is_training=True, auto_augment='rand-m6-mstd0.5')
   transform_testing = create_transform(input_size=resolution_size,is_training=False, auto_augment='rand-m6-mstd0.5')
   
@@ -26,8 +28,6 @@ def get_data_loader(root_data, path_annotations_train,path_annotations_val,batch
     annFile=path_annotations_val
   )
 
-  # print(len(full_training_data))
-  # print(full_training_data)
   
 
 
