@@ -1,6 +1,6 @@
 
 from metrics.metrics import compute_naswot_score, compute_synflow_per_weight, get_params_flops
-#from exemplar import Exemplar
+
 import torch 
 
 def compute_metrics(exemplar, inputs, device):
@@ -18,12 +18,9 @@ def compute_metrics(exemplar, inputs, device):
 
         exemplar.metrics = {}
         exemplar.metrics["synflow"] = compute_synflow_per_weight(net=model, inputs=inputs, device=device)
-        # inputs is batch dataloader -> input[0] list of all tensors without labels
-        exemplar.metrics["naswot"] = compute_naswot_score(net=model, inputs=inputs, device=device)
         
-        # params, flops = get_params_flops(model, inputs,device)
-        # exemplar.metrics["FLOPS"] = flops
-        # exemplar.metrics["#Parameters"] = params
+        exemplar.metrics["naswot"] = compute_naswot_score(net=model, inputs=inputs, device=device)
+
 
         inputs.detach()
         del inputs
