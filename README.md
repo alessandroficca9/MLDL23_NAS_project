@@ -53,15 +53,15 @@ python run_search.py \
 ```
 
 To train the model on the visualwakeword dataset, run the following code. The parameters are
-- model: path of file in which is stored the model ("model.pth" as default)
-- root_data: path of the dataset folder
-- ann_train: path of the annotations train file
-- ann_val: path of the annotations validation file
-- batch_size: size of the batch for the training phase
-- learning_rate: 
-- momentum:
-- epochs
-- weight_decay:
+- **model**: path of file in which is stored the model ("model.pth" as default)
+- **root_data**: path of the dataset folder
+- **ann_train**: path of the annotations train file
+- **ann_val**: path of the annotations validation file
+- **batch_size**: size of the batch for the training phase
+- **learning_rate**: learning rate (default 0.01) 
+- **momentum**: momentum (default 0.9)
+- **epochs:** number of epochs
+- **weight_decay**: weight decay (default 1e-4)
 
 ```bash
 python run_train.py \
